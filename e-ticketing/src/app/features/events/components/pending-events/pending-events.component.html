@@ -1,0 +1,123 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Pending Events</h2>
+        <div class="text-muted">
+          <i class="bi bi-clock me-1"></i>
+          {{ events.length }} events pending approval
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-warning" role="status"></div>
+        <p class="mt-2">Loading pending events...</p>
+      </div>
+
+      <!-- No Events -->
+      <div *ngIf="!loading && events.length === 0" class="text-center py-5">
+        <i class="bi bi-clock-history text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 text-muted">No Pending Events</h4>
+        <p class="text-muted">All events have been reviewed.</p>
+      </div>
+
+      <!-- Events Grid -->
+      <div *ngIf="!loading && events.length > 0" class="row">
+        <div class="col-lg-6 mb-4" *ngFor="let event of events">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <!-- Event Header -->
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title fw-bold text-warning mb-0">
+                  {{ event.title }}
+                </h5>
+                <span class="badge bg-warning text-dark">Pending</span>
+              </div>
+
+              <!-- Event Details -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-calendar3 text-muted me-2"></i>
+                  <div>
+                    <div class="fw-semibold">{{ formatDate(event.date) }}</div>
+                    <small class="text-muted">{{ formatTime(event.date) }}</small>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-geo-alt text-muted me-2" style="min-width: 16px;"></i>
+                  <span class="small">{{ event.address }}</span>
+                </div>
+
+                <div class="d-flex align-items-center mb-3" *ngIf="event.seller_name">
+                  <i class="bi bi-person text-muted me-2" style="min-width: 16px;"></i>
+                  <span class="small">{{ event.seller_name }}</span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                  <label class="fw-semibold text-muted small">Description:</label>
+                  <p class="text-muted small mb-0" [innerHTML]="event.description">
+                  </p>
+                </div>
+
+                <!-- Additional Data -->
+                <div *ngIf="event.data" class="mb-3">
+                  <label class="fw-semibold text-muted small">Additional Info:</label>
+                  <pre class="small text-muted bg-light p-2 rounded">{{ event.data }}</pre>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-flex gap-2">
+                <button 
+                  class="btn btn-success btn-sm flex-fill"
+                  (click)="approveEvent(event.id)"
+                  [disabled]="actionLoading">
+                  <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+                  <i *ngIf="!actionLoading" class="bi bi-check-lg me-1"></i>
+                  Approve
+                </button>
+                <button 
+                  class="btn btn-danger btn-sm flex-fill"
+                  (click)="rejectEvent(event.id)"
+                  [disabled]="actionLoading">
+                  <i class="bi bi-x-lg me-1"></i>
+                  Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <nav *ngIf="!loading && totalPages > 1" class="mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="!hasPrev">
+            <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="!hasPrev">
+              <i class="bi bi-chevron-left"></i>
+              Previous
+            </button>
+          </li>
+
+          <li class="page-item" 
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              [class.active]="currentPage === i + 1">
+            <button class="page-link" (click)="goToPage(i + 1)">
+              {{ i + 1 }}
+            </button>
+          </li>
+
+          <li class="page-item" [class.disabled]="!hasNext">
+            <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="!hasNext">
+              Next
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

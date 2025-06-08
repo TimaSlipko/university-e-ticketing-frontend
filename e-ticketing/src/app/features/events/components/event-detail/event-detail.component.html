@@ -1,0 +1,112 @@
+<div class="container py-4">
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Loading event details...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="alert alert-danger">
+    {{ error }}
+    <button class="btn btn-outline-danger ms-3" (click)="loadEvent()">Retry</button>
+  </div>
+
+  <!-- Event Details -->
+  <div *ngIf="event && !loading" class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="fw-bold text-primary mb-3">{{ event.title }}</h1>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-calendar3 text-primary me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                  <div class="fw-semibold">{{ formatDate(event.date) }}</div>
+                  <small class="text-muted">{{ formatTime(event.date) }}</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-geo-alt text-primary me-3" style="font-size: 1.2rem;"></i>
+                <div>
+                  <div class="fw-semibold">{{ event.address }}</div>
+                  <small class="text-muted">Event Location</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4" *ngIf="event.seller_name">
+            <div class="d-flex align-items-center">
+              <i class="bi bi-person text-primary me-3" style="font-size: 1.2rem;"></i>
+              <div>
+                <div class="fw-semibold">{{ event.seller_name }}</div>
+                <small class="text-muted">Event Organizer</small>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <h5 class="fw-bold mb-3">About This Event</h5>
+          <p class="text-muted" [innerHTML]="event.description"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Tickets Section -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-ticket-perforated me-2"></i>
+            Available Tickets
+          </h5>
+
+          <div *ngIf="ticketsLoading" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </div>
+
+          <div *ngIf="tickets.length === 0 && !ticketsLoading" class="text-center py-3 text-muted">
+            <i class="bi bi-ticket-x" style="font-size: 2rem;"></i>
+            <p class="mt-2 mb-0">No tickets available</p>
+          </div>
+
+          <div *ngFor="let ticket of tickets" class="border rounded p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h6 class="fw-bold mb-1">{{ ticket.title }}</h6>
+                <p class="text-muted small mb-2">{{ ticket.description }}</p>
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-light text-dark me-2">{{ ticket.place }}</span>
+                  <span *ngIf="ticket.is_vip" class="badge bg-warning">VIP</span>
+                </div>
+              </div>
+              <div class="text-end">
+                <div class="h5 fw-bold text-primary mb-2">\${{ ticket.price }}</div>
+                <button 
+                  class="btn btn-primary btn-sm"
+                  [disabled]="ticket.is_sold || ticket.is_held || !isAuthenticated"
+                  (click)="purchaseTicket(ticket.id, ticket.price)">
+                  <span *ngIf="!ticket.is_sold && !ticket.is_held">Buy Now</span>
+                  <span *ngIf="ticket.is_sold">Sold Out</span>
+                  <span *ngIf="ticket.is_held && !ticket.is_sold">On Hold</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="!isAuthenticated" class="alert alert-info mt-3">
+            <small>
+              <i class="bi bi-info-circle me-1"></i>
+              Please <a routerLink="/auth/login" class="alert-link">sign in</a> to purchase tickets
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

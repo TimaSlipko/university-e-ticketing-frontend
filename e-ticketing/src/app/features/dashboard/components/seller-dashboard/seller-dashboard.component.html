@@ -1,0 +1,181 @@
+<div class="container py-4">
+  <!-- Welcome Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-success text-white">
+        <div class="card-body p-4">
+          <h2 class="fw-bold mb-2">Seller Dashboard</h2>
+          <p class="mb-0">Welcome back, {{ getUserName() }}! Manage your events and track sales.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-calendar-event text-primary" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ stats?.total_events || 0 }}</h4>
+          <small class="text-muted">Total Events</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ stats?.approved_events || 0 }}</h4>
+          <small class="text-muted">Approved Events</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-clock text-warning" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ stats?.pending_events || 0 }}</h4>
+          <small class="text-muted">Pending Approval</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-currency-dollar text-info" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">\${{ stats?.total_revenue || 0 }}</h4>
+          <small class="text-muted">Total Revenue</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h4 class="fw-bold mb-3">Quick Actions</h4>
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <button class="btn btn-outline-primary w-100 p-3" routerLink="/events/create">
+            <i class="bi bi-plus-circle d-block mb-2" style="font-size: 1.5rem;"></i>
+            Create Event
+          </button>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button class="btn btn-outline-success w-100 p-3" routerLink="/seller/events">
+            <i class="bi bi-calendar-check d-block mb-2" style="font-size: 1.5rem;"></i>
+            My Events
+          </button>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button class="btn btn-outline-info w-100 p-3" routerLink="/seller/analytics">
+            <i class="bi bi-graph-up d-block mb-2" style="font-size: 1.5rem;"></i>
+            Analytics
+          </button>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button class="btn btn-outline-warning w-100 p-3" routerLink="/profile">
+            <i class="bi bi-person-gear d-block mb-2" style="font-size: 1.5rem;"></i>
+            Profile Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Events -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold">Recent Events</h5>
+          <button class="btn btn-sm btn-outline-primary" routerLink="/seller/events">
+            View All
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="eventsLoading" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </div>
+          
+          <div *ngIf="recentEvents.length === 0 && !eventsLoading" class="text-center py-4 text-muted">
+            <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+            <p class="mt-2">No events found</p>
+            <button class="btn btn-primary" routerLink="/events/create">Create Your First Event</button>
+          </div>
+
+          <div *ngFor="let event of recentEvents" class="border-bottom py-3">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h6 class="mb-1 fw-bold">{{ event.title }}</h6>
+                <p class="mb-1 text-muted small">{{ event.address }}</p>
+                <small class="text-muted">{{ formatDate(event.date) }}</small>
+              </div>
+              <div class="text-end">
+                <span class="badge" 
+                      [class.bg-success]="event.status === 2"
+                      [class.bg-warning]="event.status === 1"
+                      [class.bg-danger]="event.status === 3">
+                  {{ getEventStatusText(event.status) }}
+                </span>
+                <div class="mt-2">
+                  <button class="btn btn-sm btn-outline-primary me-1" 
+                          [routerLink]="['/events', event.id]">
+                    View
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary"
+                          [routerLink]="['/events', event.id, 'edit']"
+                          [disabled]="event.status !== 1">
+                    Edit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <!-- Performance Summary -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0 fw-bold">Performance</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between py-2">
+            <span class="text-muted">Events Sold</span>
+            <span class="fw-bold">{{ stats?.events_sold || 0 }}</span>
+          </div>
+          <div class="d-flex justify-content-between py-2">
+            <span class="text-muted">Approval Rate</span>
+            <span class="fw-bold">{{ getApprovalRate() }}%</span>
+          </div>
+          <div class="d-flex justify-content-between py-2">
+            <span class="text-muted">Avg. Revenue</span>
+            <span class="fw-bold">\${{ getAverageRevenue() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0 fw-bold">
+            <i class="bi bi-lightbulb me-2"></i>
+            Tips for Success
+          </h5>
+        </div>
+        <div class="card-body">
+          <ul class="mb-0 small">
+            <li class="mb-2">Add detailed descriptions to increase event approval chances</li>
+            <li class="mb-2">Upload high-quality images when available</li>
+            <li class="mb-2">Set competitive ticket prices</li>
+            <li class="mb-0">Promote your events on social media</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

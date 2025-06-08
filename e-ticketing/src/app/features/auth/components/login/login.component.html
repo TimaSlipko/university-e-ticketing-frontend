@@ -1,0 +1,128 @@
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="row w-100">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-4 mx-auto">
+      <div class="card shadow-lg border-0">
+        <div class="card-body p-5">
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <h2 class="card-title fw-bold text-primary">Welcome Back</h2>
+            <p class="text-muted">Sign in to your E-Ticketing account</p>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Login Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Email Field -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-envelope text-muted"></i>
+                </span>
+                <input 
+                  type="email" 
+                  id="email"
+                  class="form-control border-start-0"
+                  [class.is-invalid]="isFieldInvalid('email')"
+                  formControlName="email" 
+                  placeholder="Enter your email"
+                  autocomplete="email">
+              </div>
+              <div *ngIf="isFieldInvalid('email')" class="invalid-feedback d-block">
+                {{ getFieldError('email') }}
+              </div>
+            </div>
+
+            <!-- User Type Selection -->
+            <div class="mb-3">
+              <label for="user_type" class="form-label fw-semibold">Account Type</label>
+              <select 
+                id="user_type"
+                class="form-select"
+                [class.is-invalid]="isFieldInvalid('user_type')"
+                formControlName="user_type">
+                <option [value]="1">Customer</option>
+                <option [value]="2">Event Organizer</option>
+                <option [value]="3">Admin</option>
+              </select>
+              <div *ngIf="isFieldInvalid('user_type')" class="invalid-feedback">
+                {{ getFieldError('user_type') }}
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="mb-4">
+              <label for="password" class="form-label fw-semibold">Password</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-lock text-muted"></i>
+                </span>
+                <input 
+                  type="password" 
+                  id="password"
+                  class="form-control border-start-0"
+                  [class.is-invalid]="isFieldInvalid('password')"
+                  formControlName="password" 
+                  placeholder="Enter your password"
+                  autocomplete="current-password">
+              </div>
+              <div *ngIf="isFieldInvalid('password')" class="invalid-feedback d-block">
+                {{ getFieldError('password') }}
+              </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <!-- <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rememberMe">
+                <label class="form-check-label text-muted" for="rememberMe">
+                  Remember me
+                </label>
+              </div> -->
+              
+              <a routerLink="/auth/forgot-password" class="text-decoration-none text-primary">
+                Forgot Password?
+              </a>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit" 
+              class="btn btn-primary w-100 py-2 fw-semibold"
+              [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <span *ngIf="isLoading">Signing In...</span>
+              <span *ngIf="!isLoading">Sign In</span>
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="text-center my-4">
+            <span class="text-muted">or</span>
+          </div>
+
+          <!-- Register Link -->
+          <div class="text-center">
+            <p class="text-muted mb-2">Don't have an account?</p>
+            <a routerLink="/auth/register" class="btn btn-outline-primary w-100 py-2 fw-semibold">
+              Create Account
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-4">
+        <p class="text-muted small">
+          &copy; 2025 E-Ticketing System. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

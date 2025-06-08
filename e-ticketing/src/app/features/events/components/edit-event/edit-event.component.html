@@ -1,0 +1,147 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow">
+        <div class="card-header bg-warning text-dark">
+          <h3 class="mb-0">
+            <i class="bi bi-pencil me-2"></i>
+            Edit Event
+          </h3>
+        </div>
+        <div class="card-body p-4">
+          <!-- Loading -->
+          <div *ngIf="loading" class="text-center py-4">
+            <div class="spinner-border text-warning" role="status"></div>
+            <p class="mt-2">Loading event details...</p>
+          </div>
+
+          <!-- Form -->
+          <form *ngIf="!loading && event" [formGroup]="eventForm" (ngSubmit)="onSubmit()">
+            <!-- Title -->
+            <div class="mb-3">
+              <label for="title" class="form-label fw-semibold">Event Title *</label>
+              <input 
+                type="text" 
+                id="title"
+                class="form-control"
+                [class.is-invalid]="isFieldInvalid('title')"
+                formControlName="title"
+                placeholder="Enter event title">
+              <div *ngIf="isFieldInvalid('title')" class="invalid-feedback">
+                Event title is required
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label fw-semibold">Description *</label>
+              <textarea 
+                id="description"
+                class="form-control"
+                rows="4"
+                [class.is-invalid]="isFieldInvalid('description')"
+                formControlName="description"
+                placeholder="Describe your event..."></textarea>
+              <div *ngIf="isFieldInvalid('description')" class="invalid-feedback">
+                Event description is required
+              </div>
+            </div>
+
+            <!-- Date and Address Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="date" class="form-label fw-semibold">Event Date & Time *</label>
+                <input 
+                  type="datetime-local" 
+                  id="date"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('date')"
+                  formControlName="date">
+                <div *ngIf="isFieldInvalid('date')" class="invalid-feedback">
+                  Event date is required
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="address" class="form-label fw-semibold">Venue Address *</label>
+                <input 
+                  type="text" 
+                  id="address"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('address')"
+                  formControlName="address"
+                  placeholder="Event venue address">
+                <div *ngIf="isFieldInvalid('address')" class="invalid-feedback">
+                  Venue address is required
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Data -->
+            <div class="mb-4">
+              <label for="data" class="form-label fw-semibold">Additional Information (JSON)</label>
+              <textarea 
+                id="data"
+                class="form-control"
+                rows="3"
+                [class.is-invalid]="isFieldInvalid('data')"
+                formControlName="data"
+                placeholder='{"capacity": 1000, "category": "concert"}'></textarea>
+              <small class="form-text text-muted">
+                Optional: Additional event data in JSON format
+              </small>
+              <div *ngIf="isFieldInvalid('data')" class="invalid-feedback">
+                Invalid JSON format
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {{ errorMessage }}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-outline-secondary" (click)="goBack()">
+                <i class="bi bi-arrow-left me-2"></i>
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-warning"
+                [disabled]="eventForm.invalid || isLoading">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isLoading" class="bi bi-check-lg me-2"></i>
+                {{ isLoading ? 'Updating...' : 'Update Event' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="card border-0 shadow-sm mt-4" *ngIf="event">
+        <div class="card-body">
+          <h6 class="fw-bold text-warning">
+            <i class="bi bi-info-circle me-2"></i>
+            Event Status
+          </h6>
+          <div class="d-flex align-items-center">
+            <span class="badge me-2" 
+                  [class.bg-warning]="event.status === 1"
+                  [class.bg-success]="event.status === 2"
+                  [class.bg-danger]="event.status === 3">
+              {{ event.status === 1 ? 'Pending Approval' : 
+                 event.status === 2 ? 'Approved' : 'Rejected' }}
+            </span>
+            <small class="text-muted">
+              {{ event.status === 1 ? 'Changes will reset approval status' : 
+                 event.status === 2 ? 'Event is live and visible to users' : 
+                 'Contact admin for more information' }}
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

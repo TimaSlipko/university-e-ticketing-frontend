@@ -1,0 +1,160 @@
+<div class="container py-4">
+  <!-- Welcome Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-primary text-white">
+        <div class="card-body p-4">
+          <h2 class="fw-bold mb-2">Welcome back, {{ getUserName() }}!</h2>
+          <p class="mb-0">Manage your tickets and explore new events</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-ticket text-primary" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ tickets.length }}</h4>
+          <small class="text-muted">My Tickets</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-arrow-left-right text-success" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ activeTransfers.length }}</h4>
+          <small class="text-muted">Active Transfers</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-check-circle text-warning" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ usedTickets }}</h4>
+          <small class="text-muted">Used Tickets</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body text-center">
+          <i class="bi bi-calendar-event text-info" style="font-size: 2rem;"></i>
+          <h4 class="mt-2 mb-0">{{ upcomingEvents }}</h4>
+          <small class="text-muted">Upcoming Events</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h4 class="fw-bold mb-3">Quick Actions</h4>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <button class="btn btn-outline-primary w-100 p-3" routerLink="/events">
+            <i class="bi bi-search d-block mb-2" style="font-size: 1.5rem;"></i>
+            Browse Events
+          </button>
+        </div>
+        <div class="col-md-4 mb-3">
+          <button class="btn btn-outline-success w-100 p-3" routerLink="/tickets">
+            <i class="bi bi-ticket-perforated d-block mb-2" style="font-size: 1.5rem;"></i>
+            My Tickets
+          </button>
+        </div>
+        <div class="col-md-4 mb-3">
+          <button class="btn btn-outline-info w-100 p-3" routerLink="/transfers">
+            <i class="bi bi-arrow-left-right d-block mb-2" style="font-size: 1.5rem;"></i>
+            Transfers
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Tickets -->
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0 fw-bold">Recent Tickets</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="ticketsLoading" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </div>
+          
+          <div *ngIf="tickets.length === 0 && !ticketsLoading" class="text-center py-4 text-muted">
+            <i class="bi bi-ticket-x" style="font-size: 2rem;"></i>
+            <p class="mt-2">No tickets found</p>
+            <button class="btn btn-primary" routerLink="/events">Browse Events</button>
+          </div>
+
+          <div *ngFor="let ticket of tickets.slice(0, 5)" class="border-bottom py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-1 fw-bold">{{ ticket.event_title }}</h6>
+                <p class="mb-1 text-muted small">{{ ticket.title }} - {{ ticket.place }}</p>
+                <small class="text-muted">{{ formatDate(ticket.event_date) }}</small>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold">\${{ ticket.price }}</div>
+                <span class="badge" 
+                      [class.bg-success]="ticket.is_used"
+                      [class.bg-primary]="!ticket.is_used">
+                  {{ ticket.is_used ? 'Used' : 'Active' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="tickets.length > 5" class="text-center mt-3">
+            <button class="btn btn-outline-primary" routerLink="/tickets">
+              View All Tickets
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+          <h5 class="mb-0 fw-bold">Active Transfers</h5>
+        </div>
+        <div class="card-body">
+          <div *ngIf="transfersLoading" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+          </div>
+
+          <div *ngIf="activeTransfers.length === 0 && !transfersLoading" class="text-center py-3 text-muted">
+            <i class="bi bi-arrow-left-right" style="font-size: 1.5rem;"></i>
+            <p class="mt-2 mb-0 small">No active transfers</p>
+          </div>
+
+          <div *ngFor="let transfer of activeTransfers.slice(0, 3)" class="border-bottom py-2">
+            <div class="small">
+              <div class="fw-bold">{{ transfer.ticket_info.title }}</div>
+              <div class="text-muted">
+                {{ transfer.status === 1 ? 'Pending' : 
+                   transfer.status === 2 ? 'Accepted' : 'Rejected' }}
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="activeTransfers.length > 0" class="text-center mt-3">
+            <button class="btn btn-outline-primary btn-sm" routerLink="/transfers">
+              View All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

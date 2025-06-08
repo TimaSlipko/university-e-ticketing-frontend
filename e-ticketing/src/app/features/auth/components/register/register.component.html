@@ -1,0 +1,201 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-4">
+  <div class="row w-100">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5 mx-auto">
+      <div class="card shadow-lg border-0">
+        <div class="card-body p-5">
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <h2 class="card-title fw-bold text-primary">Create Account</h2>
+            <p class="text-muted">Join E-Ticketing and start your journey</p>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+          </div>
+
+          <!-- Registration Form -->
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Name Fields Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="username" class="form-label fw-semibold">Username</label>
+                <input 
+                  type="text" 
+                  id="username"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('username')"
+                  formControlName="username" 
+                  placeholder="Username">
+                <div *ngIf="isFieldInvalid('username')" class="invalid-feedback">
+                  {{ getFieldError('username') }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="user_type" class="form-label fw-semibold">Account Type</label>
+                <select 
+                  id="user_type"
+                  class="form-select"
+                  [class.is-invalid]="isFieldInvalid('user_type')"
+                  formControlName="user_type">
+                  <option [value]="1">Customer</option>
+                  <option [value]="2">Event Organizer</option>
+                </select>
+                <div *ngIf="isFieldInvalid('user_type')" class="invalid-feedback">
+                  {{ getFieldError('user_type') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Personal Info Row -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label fw-semibold">First Name</label>
+                <input 
+                  type="text" 
+                  id="name"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('name')"
+                  formControlName="name" 
+                  placeholder="First name">
+                <div *ngIf="isFieldInvalid('name')" class="invalid-feedback">
+                  {{ getFieldError('name') }}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="surname" class="form-label fw-semibold">Last Name</label>
+                <input 
+                  type="text" 
+                  id="surname"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('surname')"
+                  formControlName="surname" 
+                  placeholder="Last name">
+                <div *ngIf="isFieldInvalid('surname')" class="invalid-feedback">
+                  {{ getFieldError('surname') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Email Field -->
+            <div class="mb-3">
+              <label for="email" class="form-label fw-semibold">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-envelope text-muted"></i>
+                </span>
+                <input 
+                  type="email" 
+                  id="email"
+                  class="form-control border-start-0"
+                  [class.is-invalid]="isFieldInvalid('email')"
+                  formControlName="email" 
+                  placeholder="Enter your email"
+                  autocomplete="email">
+              </div>
+              <div *ngIf="isFieldInvalid('email')" class="invalid-feedback d-block">
+                {{ getFieldError('email') }}
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label for="password" class="form-label fw-semibold">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-lock text-muted"></i>
+                  </span>
+                  <input 
+                    type="password" 
+                    id="password"
+                    class="form-control border-start-0"
+                    [class.is-invalid]="isFieldInvalid('password')"
+                    formControlName="password" 
+                    placeholder="Create password"
+                    autocomplete="new-password">
+                </div>
+                <div *ngIf="isFieldInvalid('password')" class="invalid-feedback d-block">
+                  {{ getFieldError('password') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Password Fields -->
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">
+                    <i class="bi bi-lock text-muted"></i>
+                  </span>
+                  <input 
+                    type="password" 
+                    id="confirmPassword"
+                    class="form-control border-start-0"
+                    [class.is-invalid]="isFieldInvalid('confirmPassword')"
+                    formControlName="confirmPassword" 
+                    placeholder="Confirm password"
+                    autocomplete="new-password">
+                </div>
+                <div *ngIf="isFieldInvalid('confirmPassword')" class="invalid-feedback d-block">
+                  {{ getFieldError('confirmPassword') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="acceptTerms"
+                  [class.is-invalid]="isFieldInvalid('acceptTerms')"
+                  formControlName="acceptTerms">
+                <label class="form-check-label text-muted" for="acceptTerms">
+                  I agree to the <a href="#" class="text-primary text-decoration-none">Terms of Service</a> 
+                  and <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>
+                </label>
+                <div *ngIf="isFieldInvalid('acceptTerms')" class="invalid-feedback d-block">
+                  {{ getFieldError('acceptTerms') }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit" 
+              class="btn btn-primary w-100 py-2 fw-semibold"
+              [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              <!-- <span *ngIf="isLoading">Creating Account...</span>
+              <span *ngIf="!isLoading">Create Account</span> -->
+              Create Account
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="text-center my-4">
+            <span class="text-muted">or</span>
+          </div>
+
+          <!-- Login Link -->
+          <div class="text-center">
+            <p class="text-muted mb-2">Already have an account?</p>
+            <a routerLink="/auth/login" class="btn btn-outline-primary w-100 py-2 fw-semibold">
+              Sign In
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center mt-4">
+        <p class="text-muted small">
+          &copy; 2025 E-Ticketing System. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

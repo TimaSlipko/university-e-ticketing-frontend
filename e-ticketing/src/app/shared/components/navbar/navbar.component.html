@@ -1,0 +1,147 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+  <div class="container">
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center" routerLink="/events">
+      <i class="bi bi-ticket-perforated-fill me-2" style="font-size: 1.5rem;"></i>
+      E-Ticketing
+    </a>
+
+    <!-- Mobile toggle button -->
+    <button 
+      class="navbar-toggler border-0" 
+      type="button" 
+      (click)="toggleNavbar()"
+      [attr.aria-expanded]="!isCollapsed">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar content -->
+    <div class="collapse navbar-collapse" [class.show]="!isCollapsed">
+      <!-- Navigation Links -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/events" routerLinkActive="active">
+            <i class="bi bi-calendar-event me-1"></i>
+            Events
+          </a>
+        </li>
+
+        <!-- Authenticated User Links -->
+        <ng-container *ngIf="isAuthenticated">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/tickets" routerLinkActive="active" *ngIf="authService.userType === 1">
+              <i class="bi bi-ticket me-1"></i>
+              My Tickets
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/transfers" routerLinkActive="active" *ngIf="authService.userType === 1">
+              <i class="bi bi-arrow-left-right me-1"></i>
+              Transfers
+            </a>
+          </li>
+
+          <!-- Seller Links -->
+          <li class="nav-item" *ngIf="authService.userType === 2">
+            <a class="nav-link" routerLink="/seller/events" routerLinkActive="active">
+              <i class="bi bi-briefcase me-1"></i>
+              My Events
+            </a>
+          </li>
+
+          <!-- Admin Links -->
+          <li class="nav-item dropdown" *ngIf="isAdmin">
+            <a class="nav-link dropdown-toggle" 
+               href="javascript:void(0)" 
+               id="adminDropdown" 
+               role="button" 
+               (click)="toggleAdminDropdown($event)"
+               [attr.aria-expanded]="adminDropdownOpen">
+              <i class="bi bi-shield-check me-1"></i>
+              Admin
+            </a>
+            <ul class="dropdown-menu" [class.show]="adminDropdownOpen" aria-labelledby="adminDropdown">
+              <li><a class="dropdown-item" routerLink="/admin/events/pending" (click)="closeDropdowns()">Pending Events</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" routerLink="/admin/users" (click)="closeDropdowns()">Users</a></li>
+              <li><a class="dropdown-item" routerLink="/admin/sellers" (click)="closeDropdowns()">Sellers</a></li>
+            </ul>
+          </li>
+        </ng-container>
+      </ul>
+
+      <!-- Right side items -->
+      <ul class="navbar-nav">
+        <!-- Guest User Links -->
+        <ng-container *ngIf="!isAuthenticated">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/auth/login">
+              <i class="bi bi-box-arrow-in-right me-1"></i>
+              Sign In
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-light ms-2" routerLink="/auth/register">
+              <i class="bi bi-person-plus me-1"></i>
+              Sign Up
+            </a>
+          </li>
+        </ng-container>
+
+        <!-- Authenticated User Menu -->
+        <ng-container *ngIf="isAuthenticated">
+          <li class="nav-item dropdown">
+            <a class="nav-link d-flex align-items-center" 
+               href="javascript:void(0)" 
+               id="userDropdown" 
+               role="button" 
+               (click)="toggleUserDropdown($event)"
+               [attr.aria-expanded]="userDropdownOpen">
+              <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" 
+                   style="width: 32px; height: 32px;">
+                <i class="bi bi-person-fill text-primary"></i>
+              </div>
+              <div class="d-none d-md-flex align-items-start">
+                <div class="me-2">
+                  <div class="fw-semibold d-flex align-items-center">
+                    {{ getUserDisplayName() }}
+                    <i class="bi bi-chevron-down ms-2" style="font-size: 0.8rem;"></i>
+                  </div>
+                  <small class="text-light opacity-75">{{ getUserTypeLabel() }}</small>
+                </div>
+              </div>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" [class.show]="userDropdownOpen" aria-labelledby="userDropdown">
+              <li>
+                <h6 class="dropdown-header">
+                  <div>{{ getUserDisplayName() }}</div>
+                  <small class="text-muted">{{ getUserTypeLabel() }}</small>
+                </h6>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" (click)="navigateToDashboard(); closeDropdowns()" style="cursor: pointer;">
+                  <i class="bi bi-speedometer2 me-2"></i>
+                  Dashboard
+                </a>
+              </li>
+              <li *ngIf="authService.userType === 1 || authService.userType === 2">
+                <a class="dropdown-item" routerLink="/profile" (click)="closeDropdowns()" style="cursor: pointer;">
+                  <i class="bi bi-person-gear me-2"></i>
+                  Profile Settings
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item text-danger" (click)="onLogout(); closeDropdowns()" style="cursor: pointer;">
+                  <i class="bi bi-box-arrow-right me-2"></i>
+                  Sign Out
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
+      </ul>
+    </div>
+  </div>
+</nav>
