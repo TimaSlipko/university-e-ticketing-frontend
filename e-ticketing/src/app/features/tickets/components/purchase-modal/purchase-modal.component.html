@@ -1,0 +1,105 @@
+<!-- Modal Backdrop -->
+<div *ngIf="show" class="modal-backdrop fade show"></div>
+
+<!-- Modal -->
+<div class="modal" [class.show]="show" [style.display]="show ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Purchase Tickets</h5>
+        <button type="button" class="btn-close" (click)="onClose()"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" *ngIf="ticket">
+        <!-- Ticket Summary -->
+        <div class="card bg-light mb-4">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h6 class="fw-bold mb-1">{{ ticket.title }}</h6>
+                <div class="d-flex gap-2 mb-2">
+                  <span class="badge bg-primary">{{ ticket.type === 1 ? 'Regular' : ticket.type === 2 ? 'VIP' : 'Premium' }}</span>
+                  <span *ngIf="ticket.is_vip" class="badge bg-warning">VIP</span>
+                </div>
+                <small class="text-muted">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  {{ ticket.place }}
+                </small>
+              </div>
+              <div class="col-md-4 text-end">
+                <div class="h5 fw-bold text-success mb-0">{{ formatPrice(ticket.price) }}</div>
+                <small class="text-muted">per ticket</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quantity Selection -->
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Quantity</label>
+          <div class="d-flex align-items-center gap-3">
+            <button 
+              class="btn btn-outline-secondary"
+              (click)="onQuantityChange(-1)"
+              [disabled]="quantity <= 1">
+              <i class="bi bi-dash"></i>
+            </button>
+            <span class="fw-bold fs-5">{{ quantity }}</span>
+            <button 
+              class="btn btn-outline-secondary"
+              (click)="onQuantityChange(1)"
+              [disabled]="quantity >= getMaxQuantity()">
+              <i class="bi bi-plus"></i>
+            </button>
+            <small class="text-muted ms-2">
+              (Max: {{ getMaxQuantity() }})
+            </small>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="mb-4">
+          <app-payment-method-selector
+            (methodSelected)="onPaymentMethodSelected($event)"
+            (paymentTypeSelected)="onPaymentTypeSelected($event)">
+          </app-payment-method-selector>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+            <h6 class="mb-0">Order Summary</h6>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <span>{{ ticket.title }} × {{ quantity }}</span>
+              <span>{{ formatPrice(ticket.price * quantity) }}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Total</span>
+              <span class="text-success">{{ formatPrice(getTotalPrice()) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="onClose()">
+          Cancel
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="onPurchase()"
+          [disabled]="!canPurchase()">
+          <i class="bi bi-credit-card me-2"></i>
+          Complete Purchase
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

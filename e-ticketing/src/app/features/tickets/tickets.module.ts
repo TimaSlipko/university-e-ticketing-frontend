@@ -5,20 +5,20 @@ import { RouterModule } from '@angular/router';
 
 import { TicketsRoutingModule } from './tickets-routing.module';
 import { MyTicketsComponent } from './components/my-tickets/my-tickets.component';
-import { PurchaseTicketComponent } from './components/purchase-ticket/purchase-ticket.component';
 import { TicketDetailComponent } from './components/ticket-detail/ticket-detail.component';
+import { PaymentMethodsModule } from '../payment-methods/payment-methods.module';
 
 @NgModule({
   declarations: [
     MyTicketsComponent,
-    PurchaseTicketComponent,
     TicketDetailComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    TicketsRoutingModule
+    TicketsRoutingModule,
+    PaymentMethodsModule
   ]
 })
 export class TicketsModule { }

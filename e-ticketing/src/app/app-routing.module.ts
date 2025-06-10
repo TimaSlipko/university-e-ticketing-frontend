@@ -51,6 +51,11 @@ const routes: Routes = [
     loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule)
   },
   {
+    path: 'payment-methods',
+    loadChildren: () => import('./features/payment-methods/payment-methods.module').then(m => m.PaymentMethodsModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: '**',
     redirectTo: '/events'
   }

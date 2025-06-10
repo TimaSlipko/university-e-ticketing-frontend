@@ -25,6 +25,8 @@ export class EventTicketsComponent implements OnInit {
   purchaseLoading = false;
   selectedTicket: GroupedTicket | null = null;
 
+  showPurchaseModal = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -84,33 +86,34 @@ export class EventTicketsComponent implements OnInit {
     }
 
     this.selectedTicket = ticket;
+    this.showPurchaseModal = true;
+  }
+
+  onPurchaseConfirmed(purchaseData: { paymentMethod?: any; paymentType?: PaymentType; quantity: number }): void {
+    if (!this.selectedTicket) return;
+
     this.purchaseLoading = true;
+    this.showPurchaseModal = false;
     this.error = '';
 
     const purchaseRequest: PurchaseTicketFromGroupRequest = {
-      event_id: ticket.event_id,
-      price: ticket.price,
-      type: ticket.type,
-      is_vip: ticket.is_vip,
-      title: ticket.title,
-      description: ticket.description,
-      place: ticket.place,
-      sale_id: ticket.sale_id,
-      quantity: 1,
-      payment_method: PaymentType.CARD
+      event_id: this.selectedTicket.event_id,
+      price: this.selectedTicket.price,
+      type: this.selectedTicket.type,
+      is_vip: this.selectedTicket.is_vip,
+      title: this.selectedTicket.title,
+      description: this.selectedTicket.description,
+      place: this.selectedTicket.place,
+      sale_id: this.selectedTicket.sale_id,
+      quantity: purchaseData.quantity,
+      payment_method: purchaseData.paymentMethod?.type || purchaseData.paymentType || PaymentType.CARD
     };
 
     this.ticketService.purchaseTicketFromGroup(purchaseRequest).subscribe({
       next: (response) => {
-        // Show success message
         alert(`Successfully purchased ${response.data.purchased_tickets.length} ticket(s)!`);
-        
-        // Reload tickets to show updated availability
         this.loadTickets();
-        
-        // Optionally redirect to user tickets
         this.router.navigate(['/tickets']);
-        
         this.purchaseLoading = false;
         this.selectedTicket = null;
       },
@@ -120,6 +123,11 @@ export class EventTicketsComponent implements OnInit {
         this.selectedTicket = null;
       }
     });
+  }
+
+  onModalClosed(): void {
+    this.showPurchaseModal = false;
+    this.selectedTicket = null;
   }
 
   getTicketTypeText(type: number): string {

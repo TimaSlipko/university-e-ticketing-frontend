@@ -84,29 +84,8 @@
 
               <!-- Action Buttons -->
               <div class="d-grid gap-2">
-                
-                <div class="row g-2">
-                <div class="col-6">
-                  <button 
-                    class="btn btn-primary btn-sm w-100"
-                    (click)="downloadTicketPDF(ticket)"
-                    [disabled]="isDownloading(ticket.id)">
-                    <span *ngIf="isDownloading(ticket.id)" class="spinner-border spinner-border-sm me-2"></span>
-                    <i *ngIf="!isDownloading(ticket.id)" class="bi bi-download me-2"></i>
-                    Download PDF
-                  </button>
-                </div>
-
-                  <div class="col-6">
-                    <button 
-                      class="btn btn-outline-primary btn-sm w-100"
-                      (click)="viewTicketPDF(ticket)"
-                      [disabled]="isDownloading(ticket.id)">
-                      <i class="bi bi-eye me-1"></i>
-                      View PDF
-                    </button>
-                  </div>
-                  <div class="col-6">
+                <div class="row g-2 justify-content-between">
+                  <div class="col-4">
                     <button 
                       class="btn btn-outline-secondary btn-sm w-100"
                       [routerLink]="['/events', ticket.event_id]">
@@ -114,15 +93,48 @@
                       Event Info
                     </button>
                   </div>
-                  <div class="col-6">
-                    <button 
-                      class="btn btn-outline-warning btn-sm w-100"
-                      [routerLink]="['/transfers/initiate']"
-                      [queryParams]="{ticket: ticket.id}"
-                      [disabled]="!canTransferTicket(ticket)">
-                      <i class="bi bi-arrow-right-circle me-1"></i>
-                      Transfer
-                    </button>
+                  <div class="col-4">
+                    <div class="dropdown" [class.show]="showDropdown === ticket.id">
+                      <button 
+                        class="btn btn-outline-secondary btn-sm dropdown-toggle w-100" 
+                        type="button"
+                        (click)="toggleDropdown(ticket.id)"
+                        (document:click)="closeDropdown($event)">
+                        Actions
+                      </button>
+                      <ul class="dropdown-menu" [class.show]="showDropdown === ticket.id">
+                        <li>
+                          <button 
+                            class="dropdown-item"
+                            (click)="viewTicketPDF(ticket)"
+                            [disabled]="isDownloading(ticket.id)">
+                            <i class="bi bi-eye me-2"></i>
+                            View PDF
+                          </button>
+                        </li>
+                        <li>
+                          <button 
+                            class="dropdown-item"
+                            (click)="downloadTicketPDF(ticket)"
+                            [disabled]="isDownloading(ticket.id)">
+                            <i class="bi bi-download me-2"></i>
+                            Download PDF
+                          </button>
+                        </li>
+                        <li *ngIf="canTransferTicket(ticket)">
+                          <hr class="dropdown-divider">
+                        </li>
+                        <li *ngIf="canTransferTicket(ticket)">
+                          <button 
+                            class="dropdown-item"
+                            [routerLink]="['/transfers/initiate']"
+                            [queryParams]="{ticket: ticket.id}">
+                            <i class="bi bi-arrow-right-circle me-2"></i>
+                            Transfer Ticket
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>

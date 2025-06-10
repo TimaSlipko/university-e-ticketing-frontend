@@ -14,6 +14,8 @@ import { EventSalesComponent } from './components/event-sales/event-sales.compon
 import { ManageSalesComponent } from './components/manage-sales/manage-sales.component';
 import { EventTicketsComponent } from './components/event-tickets/event-tickets.component';
 import { ManageTicketsComponent } from './components/manage-tickets/manage-tickets.component';
+import { PaymentMethodsModule } from '../payment-methods/payment-methods.module';
+import { PurchaseModalComponent } from '../tickets/components/purchase-modal/purchase-modal.component';
 
 @NgModule({
   declarations: [
@@ -26,13 +28,15 @@ import { ManageTicketsComponent } from './components/manage-tickets/manage-ticke
     EventSalesComponent,
     ManageSalesComponent,
     EventTicketsComponent,
-    ManageTicketsComponent
+    ManageTicketsComponent,
+    PurchaseModalComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
-    EventsRoutingModule
+    EventsRoutingModule,
+    PaymentMethodsModule
   ]
 })
 export class EventsModule { }

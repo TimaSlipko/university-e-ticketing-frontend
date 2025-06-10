@@ -168,3 +168,11 @@
     </div>
   </div>
 </div>
+
+<!-- Purchase Modal -->
+<app-purchase-modal
+  [ticket]="selectedTicket"
+  [show]="showPurchaseModal"
+  (purchaseConfirmed)="onPurchaseConfirmed($event)"
+  (modalClosed)="onModalClosed()">
+</app-purchase-modal>

@@ -13,6 +13,7 @@ export class MyTicketsComponent implements OnInit {
   loading = false;
   error = '';
   downloadingTickets = new Set<number>();
+  showDropdown: number | null = null;
 
   constructor(private ticketService: TicketService) {}
 
@@ -32,38 +33,6 @@ export class MyTicketsComponent implements OnInit {
       error: (error) => {
         this.error = error.error?.message || 'Failed to load tickets';
         this.loading = false;
-      }
-    });
-  }
-
-  downloadTicketPDF(ticket: PurchasedTicket): void {
-    this.downloadingTickets.add(ticket.id);
-    this.error = '';
-
-    this.ticketService.downloadTicketPDF(ticket.id).subscribe({
-      next: (blob) => {
-        this.downloadBlob(blob, `ticket_${ticket.id}_${ticket.event_title}.pdf`);
-        this.downloadingTickets.delete(ticket.id);
-      },
-      error: (error) => {
-        this.error = 'Failed to download PDF';
-        this.downloadingTickets.delete(ticket.id);
-      }
-    });
-  }
-
-  viewTicketPDF(ticket: PurchasedTicket): void {
-    this.downloadingTickets.add(ticket.id);
-    this.error = '';
-
-    this.ticketService.viewTicketPDF(ticket.id).subscribe({
-      next: (blob) => {
-        this.viewBlob(blob);
-        this.downloadingTickets.delete(ticket.id);
-      },
-      error: (error) => {
-        this.error = 'Failed to view PDF';
-        this.downloadingTickets.delete(ticket.id);
       }
     });
   }
@@ -129,5 +98,50 @@ export class MyTicketsComponent implements OnInit {
 
   canTransferTicket(ticket: PurchasedTicket): boolean {
     return !ticket.is_used && !this.isEventPast(ticket.event_date);
+  }
+
+  toggleDropdown(ticketId: number): void {
+    this.showDropdown = this.showDropdown === ticketId ? null : ticketId;
+  }
+
+  closeDropdown(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown')) {
+      this.showDropdown = null;
+    }
+  }
+
+  downloadTicketPDF(ticket: PurchasedTicket): void {
+    this.showDropdown = null; // Close dropdown
+    this.downloadingTickets.add(ticket.id);
+    this.error = '';
+
+    this.ticketService.downloadTicketPDF(ticket.id).subscribe({
+      next: (blob) => {
+        this.downloadBlob(blob, `ticket_${ticket.id}_${ticket.event_title}.pdf`);
+        this.downloadingTickets.delete(ticket.id);
+      },
+      error: (error) => {
+        this.error = 'Failed to download PDF';
+        this.downloadingTickets.delete(ticket.id);
+      }
+    });
+  }
+
+  viewTicketPDF(ticket: PurchasedTicket): void {
+    this.showDropdown = null; // Close dropdown
+    this.downloadingTickets.add(ticket.id);
+    this.error = '';
+
+    this.ticketService.viewTicketPDF(ticket.id).subscribe({
+      next: (blob) => {
+        this.viewBlob(blob);
+        this.downloadingTickets.delete(ticket.id);
+      },
+      error: (error) => {
+        this.error = 'Failed to view PDF';
+        this.downloadingTickets.delete(ticket.id);
+      }
+    });
   }
 }

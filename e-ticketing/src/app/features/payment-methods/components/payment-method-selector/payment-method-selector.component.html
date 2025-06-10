@@ -1,0 +1,151 @@
+<div class="payment-method-selector">
+  <h5 class="fw-semibold mb-3">Payment Method</h5>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-3">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span class="ms-2">Loading payment methods...</span>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger py-2">
+    <small>{{ error }}</small>
+  </div>
+
+  <!-- Payment Method Selection -->
+  <div *ngIf="!loading">
+    <!-- Use Stored Method Option -->
+    <div *ngIf="paymentMethods.length > 0" class="mb-3">
+      <div class="form-check">
+        <input 
+          class="form-check-input" 
+          type="radio" 
+          name="paymentOption" 
+          id="useStored"
+          [(ngModel)]="useStoredMethod" 
+          [value]="true"
+          (change)="onUseStoredMethodChange()">
+        <label class="form-check-label fw-semibold" for="useStored">
+          Use saved payment method
+        </label>
+      </div>
+
+      <!-- Stored Methods List -->
+      <div *ngIf="useStoredMethod" class="ms-4 mt-2">
+        <div class="row g-2">
+          <div class="col-12" *ngFor="let method of paymentMethods">
+            <div class="card payment-method-card" 
+                 [class.selected]="selectedMethod?.id === method.id"
+                 (click)="selectMethod(method)">
+              <div class="card-body py-2 px-3">
+                <div class="d-flex align-items-center">
+                  <input 
+                    type="radio" 
+                    class="form-check-input me-3"
+                    [checked]="selectedMethod?.id === method.id"
+                    readonly>
+                  <i class="{{getPaymentMethodIcon(method)}} me-3 text-primary"></i>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ method.type_name }}</div>
+                    <small class="text-muted">{{ getDisplayText(method) }}</small>
+                  </div>
+                  <span *ngIf="method.is_default" class="badge bg-success ms-2">Default</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Use New Payment Method Option -->
+    <div class="mb-3">
+      <div class="form-check">
+        <input 
+          class="form-check-input" 
+          type="radio" 
+          name="paymentOption" 
+          id="useNew"
+          [(ngModel)]="useStoredMethod" 
+          [value]="false"
+          (change)="onUseStoredMethodChange()">
+        <label class="form-check-label fw-semibold" for="useNew">
+          Use new payment method
+        </label>
+      </div>
+
+      <!-- New Payment Type Selection -->
+      <div *ngIf="!useStoredMethod" class="ms-4 mt-2">
+        <div class="row g-2">
+          <div class="col-md-4">
+            <input 
+              type="radio" 
+              class="btn-check" 
+              [(ngModel)]="selectedPaymentType"
+              (ngModelChange)="onPaymentTypeChange()"
+              [value]="PaymentType.CARD" 
+              id="newCard">
+            <label class="btn btn-outline-primary w-100 py-2" for="newCard">
+              <i class="bi bi-credit-card d-block mb-1"></i>
+              <small>Credit Card</small>
+            </label>
+          </div>
+          <div class="col-md-4">
+            <input 
+              type="radio" 
+              class="btn-check" 
+              [(ngModel)]="selectedPaymentType"
+              (ngModelChange)="onPaymentTypeChange()"
+              [value]="PaymentType.PAYPAL" 
+              id="newPaypal">
+            <label class="btn btn-outline-primary w-100 py-2" for="newPaypal">
+              <i class="bi bi-paypal d-block mb-1"></i>
+              <small>PayPal</small>
+            </label>
+          </div>
+          <div class="col-md-4">
+            <input 
+              type="radio" 
+              class="btn-check" 
+              [(ngModel)]="selectedPaymentType"
+              (ngModelChange)="onPaymentTypeChange()"
+              [value]="PaymentType.GOOGLEPAY" 
+              id="newGoogle">
+            <label class="btn btn-outline-primary w-100 py-2" for="newGoogle">
+              <i class="bi bi-google d-block mb-1"></i>
+              <small>Google Pay</small>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Payment Methods Available -->
+    <div *ngIf="paymentMethods.length === 0" class="text-center py-3">
+      <i class="bi bi-credit-card-2-front text-muted mb-2" style="font-size: 2rem;"></i>
+      <p class="text-muted mb-2">No saved payment methods</p>
+      <a class="btn btn-outline-primary btn-sm" routerLink="/payment-methods/add">
+        <i class="bi bi-plus-circle me-1"></i>
+        Add Payment Method
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+.payment-method-card {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #dee2e6;
+}
+
+.payment-method-card:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.payment-method-card.selected {
+  border-color: #0d6efd;
+  background-color: #f8f9ff;
+}
+</style>

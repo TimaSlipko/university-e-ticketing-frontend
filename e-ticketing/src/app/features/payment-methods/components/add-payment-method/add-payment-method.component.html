@@ -1,0 +1,203 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-outline-secondary me-3" routerLink="/payment-methods">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <h2 class="fw-bold mb-0">Add Payment Method</h2>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
+      <!-- Success -->
+      <div *ngIf="success" class="alert alert-success">
+        <i class="bi bi-check-circle me-2"></i>
+        {{ success }}
+      </div>
+
+      <!-- Payment Method Form -->
+      <div *ngIf="!success" class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+            <!-- Payment Type Selection -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Payment Type</label>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" [value]="PaymentType.CARD" formControlName="type" id="card">
+                  <label class="btn btn-outline-primary w-100" for="card">
+                    <i class="bi bi-credit-card d-block mb-2" style="font-size: 1.5rem;"></i>
+                    Credit Card
+                  </label>
+                </div>
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" [value]="PaymentType.PAYPAL" formControlName="type" id="paypal">
+                  <label class="btn btn-outline-primary w-100" for="paypal">
+                    <i class="bi bi-paypal d-block mb-2" style="font-size: 1.5rem;"></i>
+                    PayPal
+                  </label>
+                </div>
+                <div class="col-md-4">
+                  <input type="radio" class="btn-check" [value]="PaymentType.GOOGLEPAY" formControlName="type" id="google">
+                  <label class="btn btn-outline-primary w-100" for="google">
+                    <i class="bi bi-google d-block mb-2" style="font-size: 1.5rem;"></i>
+                    Google Pay
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Credit Card Fields -->
+            <div *ngIf="selectedType === PaymentType.CARD">
+              <div class="row mb-3">
+                <div class="col-12">
+                  <label for="cardNumber" class="form-label">Card Number</label>
+                  <input 
+                    type="text" 
+                    id="cardNumber"
+                    class="form-control"
+                    placeholder="1234 5678 9012 3456"
+                    formControlName="card_number"
+                    (input)="formatCardNumber($event)"
+                    maxlength="16">
+                  <div *ngIf="paymentForm.get('card_number')?.invalid && paymentForm.get('card_number')?.touched" 
+                       class="text-danger small mt-1">
+                    Please enter a valid 16-digit card number
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="expiryDate" class="form-label">Expiry Date</label>
+                  <input 
+                    type="text" 
+                    id="expiryDate"
+                    class="form-control"
+                    placeholder="MM/YY"
+                    formControlName="expiry_date"
+                    (input)="formatExpiryDate($event)"
+                    maxlength="5">
+                  <div *ngIf="paymentForm.get('expiry_date')?.invalid && paymentForm.get('expiry_date')?.touched" 
+                       class="text-danger small mt-1">
+                    Please enter a valid date (MM/YY)
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="cvv" class="form-label">CVV</label>
+                  <input 
+                    type="text" 
+                    id="cvv"
+                    class="form-control"
+                    placeholder="123"
+                    formControlName="cvv"
+                    maxlength="4">
+                  <div *ngIf="paymentForm.get('cvv')?.invalid && paymentForm.get('cvv')?.touched" 
+                       class="text-danger small mt-1">
+                    Please enter a valid CVV (3-4 digits)
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-12">
+                  <label for="cardHolder" class="form-label">Cardholder Name</label>
+                  <input 
+                    type="text" 
+                    id="cardHolder"
+                    class="form-control"
+                    placeholder="John Doe"
+                    formControlName="card_holder">
+                  <div *ngIf="paymentForm.get('card_holder')?.invalid && paymentForm.get('card_holder')?.touched" 
+                       class="text-danger small mt-1">
+                    Cardholder name is required
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PayPal Fields -->
+            <div *ngIf="selectedType === PaymentType.PAYPAL">
+              <div class="mb-3">
+                <label for="paypalEmail" class="form-label">PayPal Email</label>
+                <input 
+                  type="email" 
+                  id="paypalEmail"
+                  class="form-control"
+                  placeholder="your@paypal.com"
+                  formControlName="paypal_email">
+                <div *ngIf="paymentForm.get('paypal_email')?.invalid && paymentForm.get('paypal_email')?.touched" 
+                     class="text-danger small mt-1">
+                  Please enter a valid PayPal email address
+                </div>
+              </div>
+            </div>
+
+            <!-- Google Pay Fields -->
+            <div *ngIf="selectedType === PaymentType.GOOGLEPAY">
+              <div class="mb-3">
+                <label for="googleEmail" class="form-label">Google Account Email</label>
+                <input 
+                  type="email" 
+                  id="googleEmail"
+                  class="form-control"
+                  placeholder="your@gmail.com"
+                  formControlName="google_email">
+                <div *ngIf="paymentForm.get('google_email')?.invalid && paymentForm.get('google_email')?.touched" 
+                     class="text-danger small mt-1">
+                  Please enter a valid Google account email
+                </div>
+              </div>
+            </div>
+
+            <!-- Default Option -->
+            <div class="mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" formControlName="is_default" id="isDefault">
+                <label class="form-check-label" for="isDefault">
+                  Set as default payment method
+                </label>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button 
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="paymentForm.invalid || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!loading" class="bi bi-plus-circle me-2"></i>
+                {{ loading ? 'Adding...' : 'Add Payment Method' }}
+              </button>
+              <button 
+                type="button"
+                class="btn btn-outline-secondary"
+                routerLink="/payment-methods">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Info -->
+      <div *ngIf="!success" class="alert alert-info mt-4">
+        <i class="bi bi-shield-check me-2"></i>
+        <strong>Security Information:</strong>
+        <ul class="mb-0 mt-2">
+          <li>This is a mock payment system for demonstration purposes</li>
+          <li>No real payment information is processed or stored</li>
+          <li>Only mock tokens are generated for testing</li>
+          <li>Your data is encrypted and securely stored</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

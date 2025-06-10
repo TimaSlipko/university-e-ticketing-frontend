@@ -320,3 +320,5 @@ export function getTicketTypeText(type: TicketType): string {
     default: return 'Unknown';
   }
 }
+
+export * from './payment-method.models';
