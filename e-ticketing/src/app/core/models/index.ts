@@ -114,6 +114,32 @@ export interface UpdateEventRequest {
   data?: string;
 }
 
+// Sale models
+export interface Sale {
+  id: number;
+  start_date: number; // Unix timestamp
+  end_date: number;   // Unix timestamp
+  event_id: number;
+  is_active: boolean;
+  event_info?: {
+    title: string;
+    description: string;
+    date: number;
+    address: string;
+  };
+}
+
+export interface CreateSaleRequest {
+  start_date: number;
+  end_date: number;
+  event_id: number;
+}
+
+export interface UpdateSaleRequest {
+  start_date?: number;
+  end_date?: number;
+}
+
 // Ticket models
 export interface Ticket {
   id: number;
@@ -129,6 +155,46 @@ export interface Ticket {
   event_id: number;
 }
 
+export interface GroupedTicket {
+  price: number;
+  type: TicketType;
+  is_vip: boolean;
+  title: string;
+  description: string;
+  place: string;
+  sale_id: number;
+  event_id: number;
+  total_amount: number;
+  available_amount: number;
+  sold_amount: number;
+  held_amount: number;
+}
+
+export interface CreateTicketRequest {
+  price: number;
+  type: TicketType;
+  is_vip: boolean;
+  title: string;
+  description: string;
+  place: string;
+  sale_id: number;
+  event_id: number;
+  amount: number;
+}
+
+export interface UpdateTicketRequest {
+  old_ticket: GroupedTicket;
+  updates: {
+    price?: number;
+    type?: TicketType;
+    is_vip?: boolean;
+    title?: string;
+    description?: string;
+    place?: string;
+    sale_id?: number;
+  };
+}
+
 export interface PurchasedTicket {
   id: number;
   ticket_id: number;
@@ -138,7 +204,21 @@ export interface PurchasedTicket {
   price: number;
   event_title: string;
   event_date: number;
+  event_id: number;  // Add this property
   is_used: boolean;
+}
+
+export interface PurchaseTicketFromGroupRequest {
+  event_id: number;
+  price: number;
+  type: TicketType;
+  is_vip: boolean;
+  title: string;
+  description: string;
+  place: string;
+  sale_id: number;
+  quantity: number;
+  payment_method: PaymentType;
 }
 
 export interface PurchaseTicketRequest {
@@ -230,4 +310,13 @@ export enum PaymentType {
   PAYPAL = 2,
   GOOGLEPAY = 3,
   STRIPE = 4
+}
+
+export function getTicketTypeText(type: TicketType): string {
+  switch (type) {
+    case TicketType.REGULAR: return 'Regular';
+    case TicketType.VIP: return 'VIP';
+    case TicketType.PREMIUM: return 'Premium';
+    default: return 'Unknown';
+  }
 }

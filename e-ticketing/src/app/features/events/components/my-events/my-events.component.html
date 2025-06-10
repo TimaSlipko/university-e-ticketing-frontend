@@ -66,20 +66,53 @@
               </div>
 
               <!-- Action Buttons -->
-              <div class="d-flex gap-2">
+              <div class="d-grid gap-2">
+                <!-- Primary Action: View Event -->
                 <button 
-                  class="btn btn-outline-primary btn-sm flex-fill"
+                  class="btn btn-primary"
                   (click)="viewEvent(event.id)">
-                  <i class="bi bi-eye me-1"></i>
-                  View
+                  <i class="bi bi-eye me-2"></i>
+                  View Event
                 </button>
-                <button 
-                  class="btn btn-outline-secondary btn-sm flex-fill"
-                  (click)="editEvent(event.id)"
-                  [disabled]="event.status !== 1">
-                  <i class="bi bi-pencil me-1"></i>
-                  Edit
-                </button>
+                
+                <!-- Secondary Actions Row -->
+                <div class="row g-2">
+                  <div class="col-3">
+                    <button 
+                      class="btn btn-outline-primary btn-sm w-100"
+                      (click)="editEvent(event.id)"
+                      [disabled]="event.status !== 1">
+                      <i class="bi bi-pencil me-1"></i>
+                      Edit
+                    </button>
+                  </div>
+                  <div class="col-3">
+                    <button 
+                      class="btn btn-outline-success btn-sm w-100"
+                      (click)="manageSales(event.id)"
+                      [disabled]="event.status !== 2">
+                      <i class="bi bi-clock me-1"></i>
+                      Sales
+                    </button>
+                  </div>
+                  <div class="col-3">
+                    <button 
+                      class="btn btn-outline-warning btn-sm w-100"
+                      (click)="manageTickets(event.id)"
+                      [disabled]="event.status !== 2">
+                      <i class="bi bi-ticket me-1"></i>
+                      Tickets
+                    </button>
+                  </div>
+                  <div class="col-3">
+                    <button 
+                      class="btn btn-outline-info btn-sm w-100"
+                      (click)="viewSales(event.id)">
+                      <i class="bi bi-eye me-1"></i>
+                      View
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <!-- Status Info -->
@@ -87,6 +120,12 @@
                 <small class="text-muted">
                   <i class="bi bi-info-circle me-1"></i>
                   Waiting for admin approval
+                </small>
+              </div>
+              <div class="mt-2" *ngIf="event.status === 2">
+                <small class="text-success">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Event approved - you can now manage sales
                 </small>
               </div>
               <div class="mt-2" *ngIf="event.status === 3">

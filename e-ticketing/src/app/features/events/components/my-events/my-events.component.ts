@@ -62,6 +62,18 @@ export class MyEventsComponent implements OnInit {
     this.router.navigate(['/events', eventId, 'edit']);
   }
 
+  manageSales(eventId: number): void {
+    this.router.navigate(['/events', eventId, 'manage-sales']);
+  }
+
+  manageTickets(eventId: number): void {
+    this.router.navigate(['/events', eventId, 'manage-tickets']);
+  }
+
+  viewSales(eventId: number): void {
+    this.router.navigate(['/events', eventId, 'sales']);
+  }
+
   createEvent(): void {
     this.router.navigate(['/events/create']);
   }

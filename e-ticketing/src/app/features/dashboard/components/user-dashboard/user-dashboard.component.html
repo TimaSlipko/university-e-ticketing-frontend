@@ -104,7 +104,7 @@
                 <small class="text-muted">{{ formatDate(ticket.event_date) }}</small>
               </div>
               <div class="text-end">
-                <div class="fw-bold">\${{ ticket.price }}</div>
+                <div class="fw-bold">${{ ticket.price }}</div>
                 <span class="badge" 
                       [class.bg-success]="ticket.is_used"
                       [class.bg-primary]="!ticket.is_used">

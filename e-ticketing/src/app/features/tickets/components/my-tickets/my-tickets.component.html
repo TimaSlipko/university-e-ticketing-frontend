@@ -1,7 +1,14 @@
 <div class="container py-4">
   <div class="row">
     <div class="col-12">
-      <h2 class="fw-bold mb-4">My Tickets</h2>
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">My Tickets</h2>
+        <div class="text-muted">
+          <i class="bi bi-ticket me-1"></i>
+          {{ tickets.length }} ticket{{ tickets.length !== 1 ? 's' : '' }}
+        </div>
+      </div>
 
       <!-- Loading -->
       <div *ngIf="loading" class="text-center py-5">
@@ -9,8 +16,14 @@
         <p class="mt-2">Loading your tickets...</p>
       </div>
 
+      <!-- Error -->
+      <div *ngIf="error && !loading" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
       <!-- No Tickets -->
-      <div *ngIf="!loading && tickets.length === 0" class="text-center py-5">
+      <div *ngIf="!loading && !error && tickets.length === 0" class="text-center py-5">
         <i class="bi bi-ticket-x text-muted" style="font-size: 4rem;"></i>
         <h4 class="mt-3 text-muted">No Tickets Found</h4>
         <p class="text-muted">You haven't purchased any tickets yet.</p>
@@ -21,125 +34,121 @@
       </div>
 
       <!-- Tickets List -->
-      <div *ngIf="!loading && tickets.length > 0" class="row">
-        <div class="col-lg-8">
-          <div class="row">
-            <div class="col-md-6 mb-4" *ngFor="let ticket of tickets">
-              <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body">
-                  <!-- Event Title -->
-                  <h5 class="card-title fw-bold text-primary">{{ ticket.event_title }}</h5>
-                  
-                  <!-- Ticket Info -->
-                  <div class="mb-3">
-                    <h6 class="fw-semibold">{{ ticket.title }}</h6>
-                    <p class="text-muted small mb-2">{{ ticket.description }}</p>
-                    <div class="d-flex align-items-center mb-2">
-                      <i class="bi bi-geo-alt text-muted me-2"></i>
-                      <span class="small">{{ ticket.place }}</span>
-                    </div>
-                    <div class="d-flex align-items-center mb-2">
-                      <i class="bi bi-calendar text-muted me-2"></i>
-                      <span class="small">{{ formatDate(ticket.event_date) }}</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                      <i class="bi bi-currency-dollar text-muted me-2"></i>
-                      <span class="fw-bold text-success">\${{ ticket.price }}</span>
-                    </div>
-                  </div>
-
-                  <!-- Status Badge -->
-                  <div class="mb-3">
-                    <span class="badge" 
-                          [class.bg-success]="ticket.is_used"
-                          [class.bg-primary]="!ticket.is_used && !isExpired(ticket.event_date)"
-                          [class.bg-secondary]="!ticket.is_used && isExpired(ticket.event_date)">
-                      {{ getTicketStatus(ticket) }}
+      <div *ngIf="!loading && !error && tickets.length > 0" class="row">
+        <div class="col-lg-6 mb-4" *ngFor="let ticket of tickets">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <!-- Ticket Header -->
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h5 class="fw-bold text-primary mb-1">{{ ticket.event_title }}</h5>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-dark">{{ ticket.title }}</span>
+                    <span class="badge" [class]="getTicketStatusClass(ticket)">
+                      {{ getTicketStatusText(ticket) }}
                     </span>
                   </div>
+                </div>
+                <div class="text-end">
+                  <div class="h5 fw-bold text-success mb-0">{{ formatPrice(ticket.price) }}</div>
+                </div>
+              </div>
 
-                  <!-- Actions -->
-                  <div class="d-grid gap-2">
+              <!-- Event Details -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-calendar3 text-muted me-2"></i>
+                  <div>
+                    <div class="fw-semibold">{{ formatDate(ticket.event_date) }}</div>
+                    <small class="text-muted">{{ formatTime(ticket.event_date) }}</small>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-geo-alt text-muted me-2"></i>
+                  <span class="small">{{ ticket.place }}</span>
+                </div>
+
+                <div *ngIf="ticket.description" class="mb-2">
+                  <p class="text-muted small mb-0">{{ ticket.description }}</p>
+                </div>
+              </div>
+
+              <!-- Ticket ID -->
+              <div class="mb-3">
+                <small class="text-muted">
+                  <i class="bi bi-hash me-1"></i>
+                  Ticket ID: {{ ticket.id }}
+                </small>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="d-grid gap-2">
+                <!-- Primary Action: Download PDF -->
+                <button 
+                  class="btn btn-primary"
+                  (click)="downloadTicketPDF(ticket)"
+                  [disabled]="isDownloading(ticket.id)">
+                  <span *ngIf="isDownloading(ticket.id)" class="spinner-border spinner-border-sm me-2"></span>
+                  <i *ngIf="!isDownloading(ticket.id)" class="bi bi-download me-2"></i>
+                  Download PDF
+                </button>
+                
+                <!-- Secondary Actions Row -->
+                <div class="row g-2">
+                  <div class="col-6">
                     <button 
-                      class="btn btn-outline-primary btn-sm"
-                      [disabled]="ticket.is_used || isExpired(ticket.event_date)"
-                      (click)="openTransferModal(ticket)">
-                      <i class="bi bi-arrow-right me-1"></i>
-                      Transfer Ticket
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm">
-                      <i class="bi bi-download me-1"></i>
-                      Download PDF
+                      class="btn btn-outline-primary btn-sm w-100"
+                      (click)="viewTicketPDF(ticket)"
+                      [disabled]="isDownloading(ticket.id)">
+                      <i class="bi bi-eye me-1"></i>
+                      View PDF
                     </button>
                   </div>
+                  <div class="col-6">
+                    <button 
+                      class="btn btn-outline-secondary btn-sm w-100"
+                      [routerLink]="['/events', ticket.event_id]">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Event Info
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Usage Status -->
+              <div class="mt-3" *ngIf="ticket.is_used">
+                <div class="alert alert-success mb-0 py-2">
+                  <small>
+                    <i class="bi bi-check-circle me-1"></i>
+                    This ticket has been used for entry
+                  </small>
+                </div>
+              </div>
+
+              <div class="mt-3" *ngIf="!ticket.is_used && isEventPast(ticket.event_date)">
+                <div class="alert alert-warning mb-0 py-2">
+                  <small>
+                    <i class="bi bi-clock-history me-1"></i>
+                    This event has ended
+                  </small>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Transfer Form -->
-        <div class="col-lg-4">
-          <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0">
-                <i class="bi bi-arrow-right me-2"></i>
-                Transfer Ticket
-              </h5>
-            </div>
-            <div class="card-body">
-              <div *ngIf="!selectedTicket" class="text-center text-muted py-4">
-                <i class="bi bi-hand-index" style="font-size: 2rem;"></i>
-                <p class="mt-2 mb-0">Select a ticket to transfer</p>
-              </div>
-
-              <div *ngIf="selectedTicket">
-                <!-- Selected Ticket Info -->
-                <div class="bg-light rounded p-3 mb-3">
-                  <h6 class="fw-bold mb-1">{{ selectedTicket.event_title }}</h6>
-                  <p class="small text-muted mb-1">{{ selectedTicket.title }}</p>
-                  <p class="small text-muted mb-0">{{ selectedTicket.place }}</p>
-                </div>
-
-                <!-- Transfer Form -->
-                <form [formGroup]="transferForm" (ngSubmit)="submitTransfer()">
-                  <div class="mb-3">
-                    <label for="toUserEmail" class="form-label fw-semibold">Recipient Email</label>
-                    <input 
-                      type="email" 
-                      id="toUserEmail"
-                      class="form-control"
-                      [class.is-invalid]="isFieldInvalid('to_user_email')"
-                      formControlName="to_user_email"
-                      placeholder="Enter recipient's email">
-                    <div *ngIf="isFieldInvalid('to_user_email')" class="invalid-feedback">
-                      Please enter a valid email address
-                    </div>
-                  </div>
-
-                  <div class="alert alert-info small">
-                    <i class="bi bi-info-circle me-2"></i>
-                    The recipient will need to accept the transfer before ownership changes.
-                  </div>
-
-                  <div class="d-grid gap-2">
-                    <button 
-                      type="submit" 
-                      class="btn btn-primary"
-                      [disabled]="transferForm.invalid || transferLoading">
-                      <span *ngIf="transferLoading" class="spinner-border spinner-border-sm me-2"></span>
-                      <i *ngIf="!transferLoading" class="bi bi-send me-2"></i>
-                      {{ transferLoading ? 'Initiating...' : 'Initiate Transfer' }}
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" (click)="cancelTransfer()">
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Help Text -->
+      <div *ngIf="tickets.length > 0" class="alert alert-info mt-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Ticket Information:</strong>
+        <ul class="mb-0 mt-2">
+          <li>Download your ticket as PDF for easy access and printing</li>
+          <li>The PDF contains a QR code for event entry verification</li>
+          <li>Keep your ticket safe and bring it to the event</li>
+          <li>Digital tickets are just as valid as printed ones</li>
+        </ul>
       </div>
     </div>
   </div>

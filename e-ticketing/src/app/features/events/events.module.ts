@@ -10,6 +10,10 @@ import { CreateEventComponent } from './components/create-event/create-event.com
 import { EditEventComponent } from './components/edit-event/edit-event.component';
 import { PendingEventsComponent } from './components/pending-events/pending-events.component';
 import { MyEventsComponent } from './components/my-events/my-events.component';
+import { EventSalesComponent } from './components/event-sales/event-sales.component';
+import { ManageSalesComponent } from './components/manage-sales/manage-sales.component';
+import { EventTicketsComponent } from './components/event-tickets/event-tickets.component';
+import { ManageTicketsComponent } from './components/manage-tickets/manage-tickets.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +22,11 @@ import { MyEventsComponent } from './components/my-events/my-events.component';
     EventDetailComponent,
     CreateEventComponent,
     EditEventComponent,
-    MyEventsComponent
+    MyEventsComponent,
+    EventSalesComponent,
+    ManageSalesComponent,
+    EventTicketsComponent,
+    ManageTicketsComponent
   ],
   imports: [
     CommonModule,

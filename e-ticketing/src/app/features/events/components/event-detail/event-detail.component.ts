@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../../../core/services/event.service';
 import { TicketService } from '../../../../core/services/ticket.service';
+import { SaleService } from '../../../../core/services/sale.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Event, Ticket, PurchaseTicketRequest } from '../../../../core/models';
+import { Event, Ticket, Sale, PurchaseTicketRequest } from '../../../../core/models';
 
 @Component({
   selector: 'app-event-detail',
@@ -12,8 +13,11 @@ import { Event, Ticket, PurchaseTicketRequest } from '../../../../core/models';
 export class EventDetailComponent implements OnInit {
   event: Event | null = null;
   tickets: Ticket[] = [];
+  activeSale: Sale | null = null;
+  upcomingSale: Sale | null = null;
   loading = false;
   ticketsLoading = false;
+  salesLoading = false;
   error = '';
   eventId!: number;
 
@@ -22,6 +26,7 @@ export class EventDetailComponent implements OnInit {
     private router: Router,
     private eventService: EventService,
     private ticketService: TicketService,
+    private saleService: SaleService,
     private authService: AuthService
   ) {}
 
@@ -33,6 +38,7 @@ export class EventDetailComponent implements OnInit {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadEvent();
     this.loadTickets();
+    this.loadSales();
   }
 
   loadEvent(): void {
@@ -62,7 +68,47 @@ export class EventDetailComponent implements OnInit {
     });
   }
 
+  loadSales(): void {
+    this.salesLoading = true;
+    this.saleService.getSalesByEvent(this.eventId).subscribe({
+      next: (response) => {
+        const sales = response.data || [];
+        this.findActiveSale(sales);
+        this.findUpcomingSale(sales);
+        this.salesLoading = false;
+      },
+      error: () => {
+        this.salesLoading = false;
+      }
+    });
+  }
+
+  private findActiveSale(sales: Sale[]): void {
+    this.activeSale = sales.find(sale => this.saleService.isSaleActive(sale)) || null;
+  }
+
+  private findUpcomingSale(sales: Sale[]): void {
+    const upcomingSales = sales
+      .filter(sale => this.saleService.isSaleUpcoming(sale))
+      .sort((a, b) => a.start_date - b.start_date);
+    
+    this.upcomingSale = upcomingSales[0] || null;
+  }
+
+  isEventOwner(): boolean {
+    const currentUser = this.authService.currentUserValue;
+    return !!(currentUser && 
+              currentUser.user_type === 2 && // Seller
+              this.event && 
+              this.event.seller_id === currentUser.id);
+  }
+
   purchaseTicket(ticketId: number, price: number): void {
+    if (!this.activeSale) {
+      alert('No active sale period. Tickets cannot be purchased at this time.');
+      return;
+    }
+
     const purchaseRequest: PurchaseTicketRequest = {
       ticket_id: ticketId,
       quantity: 1,
@@ -85,5 +131,9 @@ export class EventDetailComponent implements OnInit {
 
   formatTime(timestamp: number): string {
     return new Date(timestamp * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  formatDateTime(timestamp: number): string {
+    return this.saleService.formatDateTime(timestamp);
   }
 }

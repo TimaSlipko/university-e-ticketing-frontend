@@ -1,0 +1,147 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Back Navigation -->
+      <div class="mb-3">
+        <button class="btn btn-outline-secondary" routerLink="/events/{{ eventId }}">
+          <i class="bi bi-arrow-left me-2"></i>
+          Back to Event Details
+        </button>
+      </div>
+
+      <!-- Event Header -->
+      <div *ngIf="event" class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h2 class="fw-bold text-primary mb-2">{{ event.title }}</h2>
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-calendar3 text-muted me-2"></i>
+                <span>{{ formatDate(event.date) }} at {{ formatTime(event.date) }}</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-geo-alt text-muted me-2"></i>
+                <span>{{ event.address }}</span>
+              </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+              <span class="badge fs-6" 
+                    [class.bg-success]="isEventUpcoming()"
+                    [class.bg-secondary]="!isEventUpcoming()">
+                {{ isEventUpcoming() ? 'Upcoming Event' : 'Past Event' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">Ticket Sales</h3>
+        <div class="text-muted">
+          <i class="bi bi-clock me-1"></i>
+          {{ sales.length }} sale{{ sales.length !== 1 ? 's' : '' }} scheduled
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading sales information...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !loading" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
+      <!-- No Sales -->
+      <div *ngIf="!loading && !error && sales.length === 0" class="text-center py-5">
+        <i class="bi bi-clock-history text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 text-muted">No Sales Scheduled</h4>
+        <p class="text-muted">No ticket sales have been scheduled for this event yet.</p>
+      </div>
+
+      <!-- Sales List -->
+      <div *ngIf="!loading && !error && sales.length > 0" class="row">
+        <div class="col-lg-6 mb-4" *ngFor="let sale of sales">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <!-- Sale Status Badge -->
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge fs-6" [class]="getSaleStatusBadgeClass(sale)">
+                  {{ getStatusText(sale) }}
+                </span>
+                <small class="text-muted">Sale #{{ sale.id }}</small>
+              </div>
+
+              <!-- Sale Period -->
+              <div class="mb-3">
+                <h6 class="fw-semibold mb-2">Sale Period</h6>
+                
+                <div class="d-flex align-items-center mb-2">
+                  <i class="bi bi-play-circle text-success me-2"></i>
+                  <div>
+                    <div class="fw-semibold">Starts</div>
+                    <div class="small text-muted">{{ formatDateTime(sale.start_date) }}</div>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-stop-circle text-danger me-2"></i>
+                  <div>
+                    <div class="fw-semibold">Ends</div>
+                    <div class="small text-muted">{{ formatDateTime(sale.end_date) }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sale Duration -->
+              <div class="mb-3">
+                <h6 class="fw-semibold mb-2">Duration</h6>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-hourglass-split text-muted me-2"></i>
+                  <span class="small">
+                    {{ ((sale.end_date - sale.start_date) / 86400) | number:'1.0-1' }} days
+                  </span>
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <div class="mt-auto" *ngIf="getSaleStatus(sale) === 'active'">
+                <button 
+                  class="btn btn-primary w-100"
+                  routerLink="/events/{{ eventId }}/tickets">
+                  <i class="bi bi-ticket me-2"></i>
+                  View Available Tickets
+                </button>
+              </div>
+
+              <div class="mt-auto" *ngIf="getSaleStatus(sale) === 'upcoming'">
+                <button class="btn btn-outline-warning w-100" disabled>
+                  <i class="bi bi-clock me-2"></i>
+                  Sale Starts Soon
+                </button>
+              </div>
+
+              <div class="mt-auto" *ngIf="getSaleStatus(sale) === 'ended'">
+                <button class="btn btn-outline-secondary w-100" disabled>
+                  <i class="bi bi-x-circle me-2"></i>
+                  Sale Ended
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Info -->
+      <div *ngIf="!loading && !error && sales.length > 0" class="alert alert-info mt-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Note:</strong> Ticket sales are only available during the specified sale periods. 
+        Make sure to purchase your tickets before the sale ends!
+      </div>
+    </div>
+  </div>
+</div>
