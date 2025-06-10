@@ -1,0 +1,136 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-outline-secondary me-3" routerLink="/transfers">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <h2 class="fw-bold mb-0">Transfer Ticket</h2>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading your tickets...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !loading" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
+      <!-- Success -->
+      <div *ngIf="success" class="alert alert-success">
+        <i class="bi bi-check-circle me-2"></i>
+        {{ success }}
+      </div>
+
+      <!-- Transfer Form -->
+      <div *ngIf="!loading && !success" class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+            <!-- Select Ticket -->
+            <div class="mb-4">
+              <label for="ticket" class="form-label fw-semibold">Select Ticket to Transfer</label>
+              <select 
+                id="ticket"
+                class="form-select"
+                formControlName="purchased_ticket_id">
+                <option value="">Choose a ticket...</option>
+                <option 
+                  *ngFor="let ticket of myTickets" 
+                  [value]="ticket.id">
+                  {{ ticket.event_title }} - {{ ticket.title }} ({{ formatPrice(ticket.price) }})
+                </option>
+              </select>
+              <div *ngIf="transferForm.get('purchased_ticket_id')?.invalid && transferForm.get('purchased_ticket_id')?.touched" 
+                   class="text-danger small mt-1">
+                Please select a ticket to transfer
+              </div>
+            </div>
+
+            <!-- Selected Ticket Preview -->
+            <div *ngIf="getSelectedTicket()" class="mb-4">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h6 class="card-title fw-bold">Selected Ticket</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Event:</strong> {{ getSelectedTicket()?.event_title }}</p>
+                      <p class="mb-1"><strong>Ticket:</strong> {{ getSelectedTicket()?.title }}</p>
+                      <p class="mb-1"><strong>Place:</strong> {{ getSelectedTicket()?.place }}</p>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-1"><strong>Date:</strong> {{ formatDate(getSelectedTicket()?.event_date || 0) }}</p>
+                      <p class="mb-1"><strong>Price:</strong> {{ formatPrice(getSelectedTicket()?.price || 0) }}</p>
+                      <p class="mb-0"><strong>ID:</strong> #{{ getSelectedTicket()?.id }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recipient Email -->
+            <div class="mb-4">
+              <label for="email" class="form-label fw-semibold">Recipient Email</label>
+              <input 
+                type="email"
+                id="email"
+                class="form-control"
+                placeholder="Enter recipient's email address"
+                formControlName="to_user_email">
+              <div *ngIf="transferForm.get('to_user_email')?.invalid && transferForm.get('to_user_email')?.touched" 
+                   class="text-danger small mt-1">
+                <span *ngIf="transferForm.get('to_user_email')?.errors?.['required']">Email is required</span>
+                <span *ngIf="transferForm.get('to_user_email')?.errors?.['email']">Please enter a valid email</span>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid gap-2">
+              <button 
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="transferForm.invalid || submitting">
+                <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!submitting" class="bi bi-arrow-right-circle me-2"></i>
+                {{ submitting ? 'Initiating Transfer...' : 'Initiate Transfer' }}
+              </button>
+              <button 
+                type="button"
+                class="btn btn-outline-secondary"
+                routerLink="/transfers">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- No Tickets Available -->
+      <div *ngIf="!loading && myTickets.length === 0 && !success" class="text-center py-5">
+        <i class="bi bi-ticket-x text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 text-muted">No Transferable Tickets</h4>
+        <p class="text-muted">You don't have any valid tickets available for transfer.</p>
+        <button class="btn btn-primary" routerLink="/events">
+          <i class="bi bi-search me-2"></i>
+          Browse Events
+        </button>
+      </div>
+
+      <!-- Transfer Information -->
+      <div *ngIf="!loading && myTickets.length > 0 && !success" class="alert alert-info mt-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Transfer Information:</strong>
+        <ul class="mb-0 mt-2">
+          <li>The recipient will receive a notification to accept or reject the transfer</li>
+          <li>You can only transfer unused tickets for future events</li>
+          <li>Once accepted, the ticket ownership will be transferred immediately</li>
+          <li>You can view transfer status in the "Active Transfers" tab</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

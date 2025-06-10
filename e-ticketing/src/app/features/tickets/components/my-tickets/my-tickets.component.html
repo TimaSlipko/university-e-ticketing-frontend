@@ -84,18 +84,19 @@
 
               <!-- Action Buttons -->
               <div class="d-grid gap-2">
-                <!-- Primary Action: Download PDF -->
-                <button 
-                  class="btn btn-primary"
-                  (click)="downloadTicketPDF(ticket)"
-                  [disabled]="isDownloading(ticket.id)">
-                  <span *ngIf="isDownloading(ticket.id)" class="spinner-border spinner-border-sm me-2"></span>
-                  <i *ngIf="!isDownloading(ticket.id)" class="bi bi-download me-2"></i>
-                  Download PDF
-                </button>
                 
-                <!-- Secondary Actions Row -->
                 <div class="row g-2">
+                <div class="col-6">
+                  <button 
+                    class="btn btn-primary btn-sm w-100"
+                    (click)="downloadTicketPDF(ticket)"
+                    [disabled]="isDownloading(ticket.id)">
+                    <span *ngIf="isDownloading(ticket.id)" class="spinner-border spinner-border-sm me-2"></span>
+                    <i *ngIf="!isDownloading(ticket.id)" class="bi bi-download me-2"></i>
+                    Download PDF
+                  </button>
+                </div>
+
                   <div class="col-6">
                     <button 
                       class="btn btn-outline-primary btn-sm w-100"
@@ -111,6 +112,16 @@
                       [routerLink]="['/events', ticket.event_id]">
                       <i class="bi bi-info-circle me-1"></i>
                       Event Info
+                    </button>
+                  </div>
+                  <div class="col-6">
+                    <button 
+                      class="btn btn-outline-warning btn-sm w-100"
+                      [routerLink]="['/transfers/initiate']"
+                      [queryParams]="{ticket: ticket.id}"
+                      [disabled]="!canTransferTicket(ticket)">
+                      <i class="bi bi-arrow-right-circle me-1"></i>
+                      Transfer
                     </button>
                   </div>
                 </div>

@@ -1,6 +1,15 @@
 <div class="container py-4">
   <div class="row">
     <div class="col-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Transfers</h2>
+        <a class="btn btn-primary" routerLink="/transfers/initiate">
+          <i class="bi bi-plus-circle me-2"></i>
+          Initiate Transfer
+        </a>
+      </div>
+
       <!-- Tabs -->
       <ul class="nav nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
@@ -34,6 +43,10 @@
           <i class="bi bi-arrow-left-right text-muted" style="font-size: 4rem;"></i>
           <h4 class="mt-3 text-muted">No Active Transfers</h4>
           <p class="text-muted">You don't have any pending transfers.</p>
+          <a class="btn btn-primary" routerLink="/transfers/initiate">
+            <i class="bi bi-plus-circle me-2"></i>
+            Initiate Transfer
+          </a>
         </div>
 
         <div class="row" *ngIf="!activeLoading && activeTransfers.length > 0">
@@ -41,10 +54,17 @@
             <div class="card border-0 shadow-sm">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
-                  <h5 class="card-title fw-bold">{{ transfer.ticket_info.event_title }}</h5>
-                  <span class="badge" [ngClass]="getStatusBadgeClass(transfer.status)">
-                    {{ getStatusText(transfer.status) }}
-                  </span>
+                  <div>
+                    <h5 class="card-title fw-bold">{{ transfer.ticket_info.event_title || 'Event' }}</h5>
+                    <div class="d-flex gap-2">
+                      <span class="badge" [ngClass]="getStatusBadgeClass(transfer.status)">
+                        {{ getStatusText(transfer.status) }}
+                      </span>
+                      <span class="badge" [ngClass]="isTransferSender(transfer) ? 'bg-info' : 'bg-primary'">
+                        {{ getTransferDirection(transfer) }}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="mb-3">
@@ -75,6 +95,11 @@
                     Reject
                   </button>
                 </div>
+
+                <div *ngIf="transfer.status === 1 && isTransferSender(transfer)" class="small text-muted">
+                  <i class="bi bi-clock me-1"></i>
+                  Waiting for recipient to respond
+                </div>
               </div>
             </div>
           </div>
@@ -100,19 +125,36 @@
               <tr>
                 <th>Event</th>
                 <th>Ticket</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Date</th>
+                <th>Direction</th>
+                <th>From/To</th>
+                <th>Status</th>
+                <th>Initiated</th>
                 <th>Completed</th>
                 <th>Price</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let transfer of transferHistory">
-                <td>{{ transfer.ticket_info.event_title }}</td>
+                <td>{{ transfer.ticket_info.event_title || 'Event' }}</td>
                 <td>{{ transfer.ticket_info.title }}</td>
-                <td>{{ transfer.from_user.name }} {{ transfer.from_user.surname }}</td>
-                <td>{{ transfer.to_user.name }} {{ transfer.to_user.surname }}</td>
+                <td>
+                  <span class="badge" [ngClass]="isTransferSender(transfer) ? 'bg-info' : 'bg-primary'">
+                    {{ getTransferDirection(transfer) }}
+                  </span>
+                </td>
+                <td>
+                  <div *ngIf="isTransferSender(transfer)">
+                    <strong>To:</strong> {{ transfer.to_user.name }} {{ transfer.to_user.surname }}
+                  </div>
+                  <div *ngIf="isTransferRecipient(transfer)">
+                    <strong>From:</strong> {{ transfer.from_user.name }} {{ transfer.from_user.surname }}
+                  </div>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(transfer.status)">
+                    {{ getStatusText(transfer.status) }}
+                  </span>
+                </td>
                 <td>{{ formatDate(transfer.date) }}</td>
                 <td>{{ formatDate(transfer.completed_at || 0) }}</td>
                 <td>${{ transfer.ticket_info.price }}</td>

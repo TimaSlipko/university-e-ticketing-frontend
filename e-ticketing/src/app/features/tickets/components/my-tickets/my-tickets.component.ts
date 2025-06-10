@@ -126,4 +126,8 @@ export class MyTicketsComponent implements OnInit {
     if (this.isEventPast(ticket.event_date)) return 'Expired';
     return 'Valid';
   }
+
+  canTransferTicket(ticket: PurchasedTicket): boolean {
+    return !ticket.is_used && !this.isEventPast(ticket.event_date);
+  }
 }

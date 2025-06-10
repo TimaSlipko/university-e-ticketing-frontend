@@ -1,0 +1,156 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="d-flex align-items-center mb-4">
+        <button class="btn btn-outline-secondary me-3" routerLink="/transfers">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <h2 class="fw-bold mb-0">Transfer Details</h2>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading transfer details...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !loading" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
+      <!-- Transfer Details -->
+      <div *ngIf="transfer && !loading" class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <!-- Status and Direction -->
+          <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+              <h4 class="fw-bold mb-2">{{ transfer.ticket_info.event_title || 'Event Transfer' }}</h4>
+              <div class="d-flex gap-2">
+                <span class="badge" [ngClass]="getStatusBadgeClass()">
+                  {{ getStatusText() }}
+                </span>
+                <span class="badge" [ngClass]="isTransferSender() ? 'bg-info' : 'bg-primary'">
+                  {{ getTransferDirection() }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ticket Information -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h5 class="fw-semibold mb-3">Ticket Information</h5>
+              <div class="card bg-light">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p class="mb-2"><strong>Event:</strong> {{ transfer.ticket_info.event_title || 'N/A' }}</p>
+                      <p class="mb-2"><strong>Ticket Type:</strong> {{ transfer.ticket_info.title }}</p>
+                      <p class="mb-2"><strong>Place/Section:</strong> {{ transfer.ticket_info.place }}</p>
+                      <p class="mb-0" *ngIf="transfer.ticket_info.description">
+                        <strong>Description:</strong> {{ transfer.ticket_info.description }}
+                      </p>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="mb-2"><strong>Price:</strong> {{ formatPrice(transfer.ticket_info.price) }}</p>
+                      <p class="mb-2"><strong>Ticket ID:</strong> #{{ transfer.ticket_info.id }}</p>
+                      <p class="mb-2" *ngIf="transfer.ticket_info.event_date">
+                        <strong>Event Date:</strong> {{ formatDate(transfer.ticket_info.event_date) }}
+                      </p>
+                      <p class="mb-0">
+                        <strong>Status:</strong> 
+                        <span [class]="transfer.ticket_info.is_used ? 'text-warning' : 'text-success'">
+                          {{ transfer.ticket_info.is_used ? 'Used' : 'Valid' }}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transfer Information -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <h5 class="fw-semibold mb-3">Transfer Information</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">From</label>
+                    <div class="p-3 bg-light rounded">
+                      <div class="fw-semibold">{{ transfer.from_user.name }} {{ transfer.from_user.surname }}</div>
+                      <div class="text-muted small">{{ transfer.from_user.email }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">To</label>
+                    <div class="p-3 bg-light rounded">
+                      <div class="fw-semibold">{{ transfer.to_user.name }} {{ transfer.to_user.surname }}</div>
+                      <div class="text-muted small">{{ transfer.to_user.email }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-2">
+                    <strong>Initiated:</strong> 
+                    {{ formatDate(transfer.date) }} at {{ formatTime(transfer.date) }}
+                  </p>
+                </div>
+                <div class="col-md-6" *ngIf="transfer.completed_at">
+                  <p class="mb-2">
+                    <strong>Completed:</strong> 
+                    {{ formatDate(transfer.completed_at) }} at {{ formatTime(transfer.completed_at) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-2 justify-content-end" *ngIf="transfer.status === 1 && isTransferRecipient()">
+            <button 
+              class="btn btn-success"
+              (click)="acceptTransfer()"
+              [disabled]="actionLoading">
+              <span *ngIf="actionLoading" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!actionLoading" class="bi bi-check-lg me-2"></i>
+              Accept Transfer
+            </button>
+            <button 
+              class="btn btn-danger"
+              (click)="rejectTransfer()"
+              [disabled]="actionLoading">
+              <i class="bi bi-x-lg me-2"></i>
+              Reject Transfer
+            </button>
+          </div>
+
+          <!-- Status Message -->
+          <div *ngIf="transfer.status === 1 && isTransferSender()" class="alert alert-info mt-3">
+            <i class="bi bi-clock me-2"></i>
+            <strong>Waiting for Response:</strong> The recipient has been notified and can accept or reject this transfer.
+          </div>
+
+          <div *ngIf="transfer.status === 2" class="alert alert-success mt-3">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong>Transfer Completed:</strong> This ticket has been successfully transferred.
+          </div>
+
+          <div *ngIf="transfer.status === 3" class="alert alert-warning mt-3">
+            <i class="bi bi-x-circle me-2"></i>
+            <strong>Transfer Rejected:</strong> The recipient has declined this transfer.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
