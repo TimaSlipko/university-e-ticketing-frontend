@@ -1,0 +1,119 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Revenue & Payments</h2>
+        <div class="text-muted">
+          <i class="bi bi-cash-coin me-1"></i>
+          {{ payments.length }} payment{{ payments.length !== 1 ? 's' : '' }}
+        </div>
+      </div>
+
+      <!-- Revenue Summary -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm bg-success text-white">
+            <div class="card-body text-center">
+              <i class="bi bi-cash-stack mb-2" style="font-size: 2rem;"></i>
+              <h3 class="fw-bold">{{ formatPrice(totalRevenue) }}</h3>
+              <p class="mb-0">Total Revenue</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm bg-primary text-white">
+            <div class="card-body text-center">
+              <i class="bi bi-receipt mb-2" style="font-size: 2rem;"></i>
+              <h3 class="fw-bold">{{ payments.length }}</h3>
+              <p class="mb-0">Total Payments</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm bg-info text-white">
+            <div class="card-body text-center">
+              <i class="bi bi-graph-up mb-2" style="font-size: 2rem;"></i>
+              <h3 class="fw-bold">{{ formatPrice(payments.length > 0 ? totalRevenue / payments.length : 0) }}</h3>
+              <p class="mb-0">Average Payment</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Loading payments...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !loading" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+
+      <!-- No Payments -->
+      <div *ngIf="!loading && !error && payments.length === 0" class="text-center py-5">
+        <i class="bi bi-cash-coin text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 text-muted">No Revenue Yet</h4>
+        <p class="text-muted">You haven't received any payments from ticket sales yet.</p>
+        <button class="btn btn-primary" routerLink="/seller/events">
+          <i class="bi bi-plus-circle me-2"></i>
+          Create Event
+        </button>
+      </div>
+
+      <!-- Payments List -->
+      <div *ngIf="!loading && !error && payments.length > 0">
+        <h4 class="fw-bold mb-3">Payment History</h4>
+        <div class="row">
+          <div class="col-lg-10 mx-auto">
+            <div class="card border-0 shadow-sm mb-3" *ngFor="let payment of payments">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-md-1 text-center">
+                    <i class="{{getPaymentIcon()}} text-success" style="font-size: 1.5rem;"></i>
+                  </div>
+                  <div class="col-md-5">
+                    <h6 class="fw-bold mb-1">{{ payment.description }}</h6>
+                    <div class="d-flex gap-2 mb-1">
+                      <span class="badge bg-success">Revenue</span>
+                      <span class="badge" [ngClass]="getPaymentStatusClass(payment.status)">
+                        {{ getPaymentStatusText(payment.status) }}
+                      </span>
+                    </div>
+                    <small class="text-muted" *ngIf="payment.event_title">
+                      <i class="bi bi-calendar3 me-1"></i>
+                      {{ payment.event_title }}
+                    </small>
+                  </div>
+                  <div class="col-md-3 text-center">
+                    <div class="fw-semibold">{{ formatDate(payment.date) }}</div>
+                    <small class="text-muted">{{ formatTime(payment.date) }}</small>
+                  </div>
+                  <div class="col-md-3 text-end">
+                    <div class="h5 fw-bold text-success mb-0">+{{ formatPrice(payment.amount) }}</div>
+                    <small class="text-muted">Payment ID: {{ payment.id }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Information -->
+      <div *ngIf="payments.length > 0" class="alert alert-success mt-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Revenue Information:</strong>
+        <ul class="mb-0 mt-2">
+          <li>Revenue is automatically deposited when customers purchase tickets</li>
+          <li>Platform fee (5%) is already deducted from the amounts shown</li>
+          <li>Payments are processed instantly in this demo system</li>
+          <li>You can track revenue by individual events and time periods</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -56,6 +56,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'payments',
+    loadChildren: () => import('./features/payments/payments.module').then(m => m.PaymentsModule),
+    canActivate: [AuthGuard]
+  },
+  {
     path: '**',
     redirectTo: '/events'
   }
