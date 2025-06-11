@@ -1,5 +1,3 @@
-// src/app/core/models/index.ts
-
 // User models (from user.model.ts)
 export interface User {
   id: number;
@@ -204,7 +202,7 @@ export interface PurchasedTicket {
   price: number;
   event_title: string;
   event_date: number;
-  event_id: number;  // Add this property
+  event_id: number;
   is_used: boolean;
 }
 

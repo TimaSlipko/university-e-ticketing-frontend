@@ -1,5 +1,3 @@
-// src/app/features/transfers/components/initiate-transfer/initiate-transfer.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';

@@ -1,5 +1,3 @@
-// src/app/features/transfers/components/transfer-detail/transfer-detail.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransferService } from '../../../../core/services/transfer.service';

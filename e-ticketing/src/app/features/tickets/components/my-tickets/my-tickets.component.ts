@@ -1,5 +1,3 @@
-// src/app/features/tickets/components/my-tickets/my-tickets.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { TicketService } from '../../../../core/services/ticket.service';
 import { PurchasedTicket } from '../../../../core/models';

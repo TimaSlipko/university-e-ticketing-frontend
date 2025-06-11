@@ -1,5 +1,3 @@
-// src/app/core/models/transfer.models.ts
-
 export interface TransferRequest {
   purchased_ticket_id: number;
   to_user_email: string;
