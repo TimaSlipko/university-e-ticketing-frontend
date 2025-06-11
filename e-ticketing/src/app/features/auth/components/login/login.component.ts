@@ -46,10 +46,22 @@ export class LoginComponent implements OnInit {
       this.authService.login(formData).subscribe({
         next: () => {
           this.isLoading = false;
+          // Navigation is handled in AuthService
         },
         error: (error) => {
           this.isLoading = false;
-          this.errorMessage = error.error?.message || 'Login failed. Please try again.';
+          console.error('Login error:', error);
+          
+          // Handle different error response formats
+          if (error.error?.message) {
+            this.errorMessage = error.error.message;
+          } else if (error.error?.error) {
+            this.errorMessage = error.error.error;
+          } else if (error.message) {
+            this.errorMessage = error.message;
+          } else {
+            this.errorMessage = 'Login failed. Please try again.';
+          }
         }
       });
     } else {

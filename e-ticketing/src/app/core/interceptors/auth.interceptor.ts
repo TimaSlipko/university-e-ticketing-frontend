@@ -22,9 +22,14 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError(error => {
-        if (error.status === 401) {
+        // Don't try to refresh token for auth endpoints or if no refresh token exists
+        const isAuthEndpoint = request.url.includes('/auth/');
+        const hasRefreshToken = !!localStorage.getItem('refreshToken');
+        
+        if (error.status === 401 && !isAuthEndpoint && hasRefreshToken) {
           return this.handle401Error(request, next);
         }
+        
         return throwError(() => error);
       })
     );
@@ -47,9 +52,9 @@ export class AuthInterceptor implements HttpInterceptor {
         return this.authService.refreshToken().pipe(
           switchMap((tokenResponse: any) => {
             this.isRefreshing = false;
-            this.refreshTokenSubject.next(tokenResponse.accessToken);
+            this.refreshTokenSubject.next(tokenResponse.data.access_token);
             
-            return next.handle(this.addTokenHeader(request, tokenResponse.accessToken));
+            return next.handle(this.addTokenHeader(request, tokenResponse.data.access_token));
           }),
           catchError((error) => {
             this.isRefreshing = false;

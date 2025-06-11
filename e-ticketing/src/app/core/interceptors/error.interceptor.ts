@@ -17,6 +17,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         let errorMessage = 'An unexpected error occurred';
+        const isAuthEndpoint = request.url.includes('/auth/');
 
         if (error.error instanceof ErrorEvent) {
           // Client-side error
@@ -28,10 +29,13 @@ export class ErrorInterceptor implements HttpInterceptor {
               errorMessage = error.error?.message || 'Bad Request';
               break;
             case 401:
-              errorMessage = 'Unauthorized. Please log in again.';
-              // Perform logout and redirect
-              // this.authService.logout();
-              // this.router.navigate(['/auth/login']);
+              if (isAuthEndpoint) {
+                // For auth endpoints (login/register), use the actual error message
+                errorMessage = error.error?.message || error.error?.error || 'Invalid credentials';
+              } else {
+                // For other endpoints, use generic unauthorized message
+                errorMessage = 'Unauthorized. Please log in again.';
+              }
               break;
             case 403:
               errorMessage = 'Access forbidden. You do not have permission.';
@@ -61,7 +65,8 @@ export class ErrorInterceptor implements HttpInterceptor {
           status: error.status,
           message: errorMessage,
           error: error.error,
-          url: request.url
+          url: request.url,
+          isAuthEndpoint
         });
 
         return throwError(() => ({ 
