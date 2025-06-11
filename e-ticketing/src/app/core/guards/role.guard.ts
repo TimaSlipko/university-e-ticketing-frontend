@@ -39,9 +39,9 @@ export class RoleGuard implements CanActivate {
 
   private redirectToAuthorizedRoute(userType: number | null): void {
     switch (userType) {
-      case 3:
-        this.router.navigate(['/dashboard/admin']);
-        break;
+      // case 3:
+      //   this.router.navigate(['/dashboard/admin']);
+      //   break;
       case 2:
         this.router.navigate(['/dashboard/seller']);
         break;

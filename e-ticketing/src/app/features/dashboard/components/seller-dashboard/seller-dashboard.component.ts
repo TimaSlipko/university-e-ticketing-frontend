@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../../../../core/services/user.service';
 import { EventService } from '../../../../core/services/event.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { SellerStats, Event } from '../../../../core/models';
+import { SellerService, SellerStats } from '../../../../core/services/seller.service';
+import { Event } from '../../../../core/models';
 
 @Component({
   selector: 'app-seller-dashboard',
@@ -16,7 +16,7 @@ export class SellerDashboardComponent implements OnInit {
   statsLoading = false;
 
   constructor(
-    private userService: UserService,
+    private sellerService: SellerService,
     private eventService: EventService,
     private authService: AuthService,
     private router: Router
@@ -29,12 +29,13 @@ export class SellerDashboardComponent implements OnInit {
 
   loadStats(): void {
     this.statsLoading = true;
-    this.userService.getSellerStats().subscribe({
+    this.sellerService.getStats().subscribe({
       next: (response) => {
         this.stats = response.data;
         this.statsLoading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load stats:', error);
         this.statsLoading = false;
       }
     });
@@ -44,12 +45,12 @@ export class SellerDashboardComponent implements OnInit {
     this.eventsLoading = true;
     this.eventService.getMyEvents(1, 5).subscribe({
       next: (response) => {
-        // Handle nested response structure
         const events = response.data?.data;
         this.recentEvents = Array.isArray(events) ? events : [];
         this.eventsLoading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Failed to load events:', error);
         this.recentEvents = [];
         this.eventsLoading = false;
       }
@@ -72,13 +73,32 @@ export class SellerDashboardComponent implements OnInit {
   }
 
   getApprovalRate(): number {
-    if (!this.stats || this.stats.total_events === 0) return 0;
-    return Math.round((this.stats.approved_events / this.stats.total_events) * 100);
+    if (!this.stats) return 0;
+    return this.sellerService.calculateApprovalRate(
+      this.stats.approved_events, 
+      this.stats.total_events
+    );
   }
 
-  getAverageRevenue(): number {
-    if (!this.stats || this.stats.events_sold === 0) return 0;
-    return Math.round(this.stats.total_revenue / this.stats.events_sold);
+  getAverageRevenue(): string {
+    if (!this.stats) return '$0';
+    const avg = this.sellerService.calculateAverageRevenue(
+      this.stats.total_revenue, 
+      this.stats.events_sold
+    );
+    return this.sellerService.formatRevenue(avg);
+  }
+
+  getTicketSoldRate(): number {
+    if (!this.stats) return 0;
+    return this.sellerService.calculateTicketSoldRate(
+      this.stats.sold_tickets,
+      this.stats.total_tickets
+    );
+  }
+
+  formatRevenue(amount: number): string {
+    return this.sellerService.formatRevenue(amount);
   }
 
   formatDate(timestamp: number): string {

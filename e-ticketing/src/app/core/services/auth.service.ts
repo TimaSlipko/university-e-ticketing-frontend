@@ -115,9 +115,9 @@ export class AuthService {
 
   private redirectAfterLogin(userType: number): void {
     switch (userType) {
-      case 3: // admin
-        this.router.navigate(['/dashboard/admin']);
-        break;
+      // case 3: // admin
+      //   this.router.navigate(['/dashboard/admin']);
+      //   break;
       case 2: // seller
         this.router.navigate(['/dashboard/seller']);
         break;

@@ -76,9 +76,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   navigateToDashboard(): void {
     switch (this.currentUser?.user_type) {
-      case UserType.ADMIN:
-        this.router.navigate(['/dashboard/admin']);
-        break;
+      // case UserType.ADMIN:
+      //   this.router.navigate(['/dashboard/admin']);
+      //   break;
       case UserType.SELLER:
         this.router.navigate(['/dashboard/seller']);
         break;
